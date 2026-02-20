@@ -6,10 +6,10 @@ import '../landing_animations.css';
 const NAV_CONFIG = {
     ADMIN: [
         { id: 'overview', label: 'Overview', icon: '📊' },
-        { id: 'users', label: 'User Management', icon: '👥' },
+        { id: 'students', label: 'Students', icon: '🎓' },
+        { id: 'teachers', label: 'Teachers', icon: '👨‍🏫' },
         { id: 'courses', label: 'Courses', icon: '📚' },
-        { id: 'orders', label: 'Orders', icon: '📦' },
-        { id: 'vendors', label: 'Vendors', icon: '🏪' },
+        { id: 'departments', label: 'Departments', icon: '🏛️' },
         { id: 'analytics', label: 'Analytics', icon: '📈' },
         { id: 'settings', label: 'Settings', icon: '⚙️' },
     ],

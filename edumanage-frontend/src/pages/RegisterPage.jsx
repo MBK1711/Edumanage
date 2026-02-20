@@ -6,7 +6,6 @@ import { authAPI } from '../api/api';
 const ROLES = [
     { value: 'student', label: '🎓 Student', desc: 'Enroll & learning' },
     { value: 'teacher', label: '👨‍🏫 Teacher', desc: 'Manage classes' },
-    { value: 'parent', label: '👨‍👩‍👧‍👦 Parent', desc: 'Track progress' },
     { value: 'admin', label: '🛡️ Admin', desc: 'System control' },
 ];
 
