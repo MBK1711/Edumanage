@@ -1,0 +1,437 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ------------------< com.edumanage:edumanage-backend >-------------------
+[INFO] Building EduManage Backend 1.0.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> spring-boot:3.2.3:run (default-cli) > test-compile @ edumanage-backend >>>
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ edumanage-backend ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 0 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ edumanage-backend ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ edumanage-backend ---
+[INFO] skip non existing resourceDirectory C:\Users\Mansi Kushwaha\.gemini\antigravity\scratch\EduManagePro\edumanage-backend\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.11.0:testCompile (default-testCompile) @ edumanage-backend ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] <<< spring-boot:3.2.3:run (default-cli) < test-compile @ edumanage-backend <<<
+[INFO] 
+[INFO] 
+[INFO] --- spring-boot:3.2.3:run (default-cli) @ edumanage-backend ---
+[INFO] Attaching agents: []
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.3)
+
+2026-02-19T14:11:00.916+05:30  INFO 13108 --- [  restartedMain] c.e.backend.EduManageBackendApplication  : Starting EduManageBackendApplication using Java 21.0.8 with PID 13108 (C:\Users\Mansi Kushwaha\.gemini\antigravity\scratch\EduManagePro\edumanage-backend\target\classes started by Mansi Kushwaha in C:\Users\Mansi Kushwaha\.gemini\antigravity\scratch\EduManagePro\edumanage-backend)
+2026-02-19T14:11:00.918+05:30 DEBUG 13108 --- [  restartedMain] c.e.backend.EduManageBackendApplication  : Running with Spring Boot v3.2.3, Spring v6.1.4
+2026-02-19T14:11:00.919+05:30  INFO 13108 --- [  restartedMain] c.e.backend.EduManageBackendApplication  : No active profile set, falling back to 1 default profile: "default"
+2026-02-19T14:11:01.028+05:30  INFO 13108 --- [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-02-19T14:11:01.029+05:30  INFO 13108 --- [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-02-19T14:11:02.376+05:30  INFO 13108 --- [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-19T14:11:02.482+05:30  INFO 13108 --- [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 89 ms. Found 5 JPA repository interfaces.
+2026-02-19T14:11:03.481+05:30  INFO 13108 --- [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8081 (http)
+2026-02-19T14:11:03.498+05:30  INFO 13108 --- [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-02-19T14:11:03.498+05:30  INFO 13108 --- [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.19]
+2026-02-19T14:11:03.571+05:30  INFO 13108 --- [  restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-02-19T14:11:03.572+05:30  INFO 13108 --- [  restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2542 ms
+2026-02-19T14:11:03.810+05:30  INFO 13108 --- [  restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-02-19T14:11:03.956+05:30  INFO 13108 --- [  restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.4.4.Final
+2026-02-19T14:11:04.040+05:30  INFO 13108 --- [  restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-02-19T14:11:04.657+05:30  INFO 13108 --- [  restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-19T14:11:04.710+05:30  INFO 13108 --- [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-02-19T14:11:05.211+05:30  INFO 13108 --- [  restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@6b5ac7b9
+2026-02-19T14:11:05.216+05:30  INFO 13108 --- [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-02-19T14:11:05.372+05:30  WARN 13108 --- [  restartedMain] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-02-19T14:11:07.956+05:30  INFO 13108 --- [  restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+Hibernate: 
+    alter table roles 
+       modify column name enum ('ROLE_ADMIN','ROLE_TEACHER','ROLE_STUDENT','ROLE_PARENT') not null
+2026-02-19T14:11:08.264+05:30  INFO 13108 --- [  restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-19T14:11:09.020+05:30 DEBUG 13108 --- [  restartedMain] c.e.backend.security.AuthTokenFilter     : Filter 'authTokenFilter' configured for use
+2026-02-19T14:11:09.333+05:30  WARN 13108 --- [  restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-02-19T14:11:09.950+05:30  INFO 13108 --- [  restartedMain] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@5e261e5e, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@4f0b3f0f, org.springframework.security.web.context.SecurityContextHolderFilter@13332e2e, org.springframework.security.web.header.HeaderWriterFilter@1a3209b0, org.springframework.web.filter.CorsFilter@2dc11fae, org.springframework.security.web.authentication.logout.LogoutFilter@22c8e578, com.edumanage.backend.security.AuthTokenFilter@1dc27b09, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@71a66f10, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@2f607b2e, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@63d1d2b, org.springframework.security.web.session.SessionManagementFilter@48a292a5, org.springframework.security.web.access.ExceptionTranslationFilter@2aa8b262, org.springframework.security.web.access.intercept.AuthorizationFilter@75cc8e03]
+2026-02-19T14:11:10.652+05:30  INFO 13108 --- [  restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2026-02-19T14:11:10.745+05:30  INFO 13108 --- [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8081 (http) with context path ''
+2026-02-19T14:11:10.761+05:30  INFO 13108 --- [  restartedMain] c.e.backend.EduManageBackendApplication  : Started EduManageBackendApplication in 10.549 seconds (process running for 11.447)
+2026-02-19T14:11:10.864+05:30  INFO 13108 --- [  restartedMain] c.e.backend.config.DataInitializer       : Successfully updated roles table schema
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+Hibernate: 
+    insert 
+    into
+        roles
+        (name) 
+    values
+        (?)
+2026-02-19T14:11:11.271+05:30  INFO 13108 --- [  restartedMain] c.e.backend.config.DataInitializer       : Initialized role: ROLE_ADMIN
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+Hibernate: 
+    insert 
+    into
+        roles
+        (name) 
+    values
+        (?)
+2026-02-19T14:11:11.285+05:30  INFO 13108 --- [  restartedMain] c.e.backend.config.DataInitializer       : Initialized role: ROLE_TEACHER
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+Hibernate: 
+    insert 
+    into
+        roles
+        (name) 
+    values
+        (?)
+2026-02-19T14:11:11.297+05:30  INFO 13108 --- [  restartedMain] c.e.backend.config.DataInitializer       : Initialized role: ROLE_STUDENT
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+Hibernate: 
+    insert 
+    into
+        roles
+        (name) 
+    values
+        (?)
+2026-02-19T14:11:11.309+05:30  INFO 13108 --- [  restartedMain] c.e.backend.config.DataInitializer       : Initialized role: ROLE_PARENT
+2026-02-19T14:14:00.977+05:30  INFO 13108 --- [nio-8081-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-02-19T14:14:00.979+05:30  INFO 13108 --- [nio-8081-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-02-19T14:14:00.988+05:30  INFO 13108 --- [nio-8081-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 7 ms
+2026-02-19T14:14:01.103+05:30 DEBUG 13108 --- [nio-8081-exec-1] o.s.security.web.FilterChainProxy        : Securing OPTIONS /api/auth/register
+2026-02-19T14:16:21.423+05:30 DEBUG 13108 --- [nio-8081-exec-4] o.s.security.web.FilterChainProxy        : Securing POST /api/auth/register
+2026-02-19T14:16:21.437+05:30 DEBUG 13108 --- [nio-8081-exec-4] o.s.s.w.a.AnonymousAuthenticationFilter  : Set SecurityContextHolder to anonymous SecurityContext
+2026-02-19T14:16:21.444+05:30 DEBUG 13108 --- [nio-8081-exec-4] o.s.security.web.FilterChainProxy        : Secured POST /api/auth/register
+Hibernate: 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.username=? 
+    limit
+        ?
+Hibernate: 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+Hibernate: 
+    insert 
+    into
+        users
+        (active, created_at, email, first_name, last_name, password, phone, updated_at, username) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?)
+2026-02-19T14:16:22.218+05:30  INFO 13108 --- [nio-8081-exec-4] c.edumanage.backend.service.AuthService  : User registered successfully: testuser999
+Hibernate: 
+    insert 
+    into
+        user_roles
+        (user_id, role_id) 
+    values
+        (?, ?)
+2026-02-19T14:16:35.161+05:30 DEBUG 13108 --- [nio-8081-exec-5] o.s.security.web.FilterChainProxy        : Securing POST /api/auth/register
+2026-02-19T14:16:35.163+05:30 DEBUG 13108 --- [nio-8081-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter  : Set SecurityContextHolder to anonymous SecurityContext
+2026-02-19T14:16:35.164+05:30 DEBUG 13108 --- [nio-8081-exec-5] o.s.security.web.FilterChainProxy        : Secured POST /api/auth/register
+Hibernate: 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.username=? 
+    limit
+        ?
+Hibernate: 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+Hibernate: 
+    insert 
+    into
+        users
+        (active, created_at, email, first_name, last_name, password, phone, updated_at, username) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?)
+2026-02-19T14:16:35.411+05:30  INFO 13108 --- [nio-8081-exec-5] c.edumanage.backend.service.AuthService  : User registered successfully: testteacher99
+Hibernate: 
+    insert 
+    into
+        user_roles
+        (user_id, role_id) 
+    values
+        (?, ?)
+2026-02-19T14:16:35.442+05:30 DEBUG 13108 --- [nio-8081-exec-2] o.s.security.web.FilterChainProxy        : Securing POST /api/auth/register
+2026-02-19T14:16:35.443+05:30 DEBUG 13108 --- [nio-8081-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter  : Set SecurityContextHolder to anonymous SecurityContext
+2026-02-19T14:16:35.443+05:30 DEBUG 13108 --- [nio-8081-exec-2] o.s.security.web.FilterChainProxy        : Secured POST /api/auth/register
+Hibernate: 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.username=? 
+    limit
+        ?
+Hibernate: 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+Hibernate: 
+    insert 
+    into
+        users
+        (active, created_at, email, first_name, last_name, password, phone, updated_at, username) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?)
+2026-02-19T14:16:35.724+05:30  INFO 13108 --- [nio-8081-exec-2] c.edumanage.backend.service.AuthService  : User registered successfully: testparent99
+Hibernate: 
+    insert 
+    into
+        user_roles
+        (user_id, role_id) 
+    values
+        (?, ?)
+2026-02-19T14:16:35.760+05:30 DEBUG 13108 --- [nio-8081-exec-6] o.s.security.web.FilterChainProxy        : Securing POST /api/auth/register
+2026-02-19T14:16:35.761+05:30 DEBUG 13108 --- [nio-8081-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter  : Set SecurityContextHolder to anonymous SecurityContext
+2026-02-19T14:16:35.763+05:30 DEBUG 13108 --- [nio-8081-exec-6] o.s.security.web.FilterChainProxy        : Secured POST /api/auth/register
+Hibernate: 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.username=? 
+    limit
+        ?
+Hibernate: 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+Hibernate: 
+    insert 
+    into
+        users
+        (active, created_at, email, first_name, last_name, password, phone, updated_at, username) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?)
+2026-02-19T14:16:36.015+05:30  INFO 13108 --- [nio-8081-exec-6] c.edumanage.backend.service.AuthService  : User registered successfully: testadmin99
+Hibernate: 
+    insert 
+    into
+        user_roles
+        (user_id, role_id) 
+    values
+        (?, ?)
+2026-02-19T14:22:44.783+05:30 DEBUG 13108 --- [nio-8081-exec-8] o.s.security.web.FilterChainProxy        : Securing OPTIONS /api/auth/register
+2026-02-19T14:22:46.030+05:30 DEBUG 13108 --- [nio-8081-exec-9] o.s.security.web.FilterChainProxy        : Securing OPTIONS /api/auth/register
+2026-02-19T14:30:36.067+05:30 DEBUG 13108 --- [nio-8081-exec-1] o.s.security.web.FilterChainProxy        : Securing OPTIONS /api/auth/register
+2026-02-19T14:31:25.272+05:30 DEBUG 13108 --- [nio-8081-exec-3] o.s.security.web.FilterChainProxy        : Securing GET /api/auth/validate
+2026-02-19T14:31:25.272+05:30 DEBUG 13108 --- [nio-8081-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter  : Set SecurityContextHolder to anonymous SecurityContext
+2026-02-19T14:31:25.273+05:30 DEBUG 13108 --- [nio-8081-exec-3] o.s.security.web.FilterChainProxy        : Secured GET /api/auth/validate
+2026-02-19T14:31:37.459+05:30 DEBUG 13108 --- [nio-8081-exec-5] o.s.security.web.FilterChainProxy        : Securing POST /api/auth/register
+2026-02-19T14:31:37.460+05:30 DEBUG 13108 --- [nio-8081-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter  : Set SecurityContextHolder to anonymous SecurityContext
+2026-02-19T14:31:37.460+05:30 DEBUG 13108 --- [nio-8081-exec-5] o.s.security.web.FilterChainProxy        : Secured POST /api/auth/register
+Hibernate: 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.username=? 
+    limit
+        ?
+Hibernate: 
+    select
+        u1_0.id 
+    from
+        users u1_0 
+    where
+        u1_0.email=? 
+    limit
+        ?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+Hibernate: 
+    insert 
+    into
+        users
+        (active, created_at, email, first_name, last_name, password, phone, updated_at, username) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?)
+2026-02-19T14:31:37.721+05:30  INFO 13108 --- [nio-8081-exec-5] c.edumanage.backend.service.AuthService  : User registered successfully: livetest2026
+Hibernate: 
+    insert 
+    into
+        user_roles
+        (user_id, role_id) 
+    values
+        (?, ?)
+2026-02-19T14:32:10.195+05:30  INFO 13108 --- [   File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2026-02-19T14:32:10.232+05:30  INFO 13108 --- [       Thread-5] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-02-19T14:32:10.256+05:30  INFO 13108 --- [       Thread-5] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-02-19T14:32:10.287+05:30  INFO 13108 --- [       Thread-5] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.3)
+
+2026-02-19T14:32:10.484+05:30  INFO 13108 --- [  restartedMain] c.e.backend.EduManageBackendApplication  : Starting EduManageBackendApplication using Java 21.0.8 with PID 13108 (C:\Users\Mansi Kushwaha\.gemini\antigravity\scratch\EduManagePro\edumanage-backend\target\classes started by Mansi Kushwaha in C:\Users\Mansi Kushwaha\.gemini\antigravity\scratch\EduManagePro\edumanage-backend)
+2026-02-19T14:32:10.485+05:30 DEBUG 13108 --- [  restartedMain] c.e.backend.EduManageBackendApplication  : Running with Spring Boot v3.2.3, Spring v6.1.4
+2026-02-19T14:32:10.485+05:30  INFO 13108 --- [  restartedMain] c.e.backend.EduManageBackendApplication  : No active profile set, falling back to 1 default profile: "default"
+2026-02-19T14:32:10.961+05:30  INFO 13108 --- [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-19T14:32:10.993+05:30  INFO 13108 --- [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 31 ms. Found 5 JPA repository interfaces.
+2026-02-19T14:32:11.462+05:30  INFO 13108 --- [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8081 (http)
+2026-02-19T14:32:11.466+05:30  INFO 13108 --- [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-02-19T14:32:11.467+05:30  INFO 13108 --- [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.19]
+2026-02-19T14:32:11.539+05:30  INFO 13108 --- [  restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-02-19T14:32:11.541+05:30  INFO 13108 --- [  restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1050 ms
+2026-02-19T14:32:11.725+05:30  INFO 13108 --- [  restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-02-19T14:32:11.742+05:30  INFO 13108 --- [  restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-02-19T14:32:11.763+05:30  INFO 13108 --- [  restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-19T14:32:11.767+05:30  INFO 13108 --- [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Starting...
+2026-02-19T14:32:11.788+05:30  INFO 13108 --- [  restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Added connection com.mysql.cj.jdbc.ConnectionImpl@235c101c
+2026-02-19T14:32:11.788+05:30  INFO 13108 --- [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Start completed.
+2026-02-19T14:32:11.794+05:30  WARN 13108 --- [  restartedMain] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-02-19T14:32:12.251+05:30  INFO 13108 --- [  restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+Hibernate: 
+    alter table roles 
+       modify column name enum ('ROLE_ADMIN','ROLE_TEACHER','ROLE_STUDENT','ROLE_PARENT') not null
+2026-02-19T14:32:12.573+05:30  INFO 13108 --- [  restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-19T14:32:12.772+05:30 DEBUG 13108 --- [  restartedMain] c.e.backend.security.AuthTokenFilter     : Filter 'authTokenFilter' configured for use
+2026-02-19T14:32:13.023+05:30  WARN 13108 --- [  restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-02-19T14:32:13.357+05:30  INFO 13108 --- [  restartedMain] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@68d5950b, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@5e778a9c, org.springframework.security.web.context.SecurityContextHolderFilter@346fcaae, org.springframework.security.web.header.HeaderWriterFilter@539f923d, org.springframework.web.filter.CorsFilter@5391affd, org.springframework.security.web.authentication.logout.LogoutFilter@34e05e8b, com.edumanage.backend.security.AuthTokenFilter@2ed53166, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@705dbc99, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@5f7cd6d5, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@7a2cdd1a, org.springframework.security.web.session.SessionManagementFilter@22c061b6, org.springframework.security.web.access.ExceptionTranslationFilter@5fc376ac, org.springframework.security.web.access.intercept.AuthorizationFilter@10b72479]
+2026-02-19T14:32:13.888+05:30  INFO 13108 --- [  restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2026-02-19T14:32:13.918+05:30  INFO 13108 --- [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8081 (http) with context path ''
+2026-02-19T14:32:13.945+05:30  INFO 13108 --- [  restartedMain] c.e.backend.EduManageBackendApplication  : Started EduManageBackendApplication in 3.524 seconds (process running for 1274.631)
+2026-02-19T14:32:14.126+05:30  INFO 13108 --- [  restartedMain] c.e.backend.config.DataInitializer       : Successfully updated roles table schema
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+2026-02-19T14:32:14.205+05:30  INFO 13108 --- [  restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged

@@ -1,0 +1,107 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ------------------< com.edumanage:edumanage-backend >-------------------
+[INFO] Building EduManage Backend 1.0.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> spring-boot:3.2.3:run (default-cli) > test-compile @ edumanage-backend >>>
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ edumanage-backend ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 0 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ edumanage-backend ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ edumanage-backend ---
+[INFO] skip non existing resourceDirectory C:\Users\Mansi Kushwaha\.gemini\antigravity\scratch\EduManagePro\edumanage-backend\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.11.0:testCompile (default-testCompile) @ edumanage-backend ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] <<< spring-boot:3.2.3:run (default-cli) < test-compile @ edumanage-backend <<<
+[INFO] 
+[INFO] 
+[INFO] --- spring-boot:3.2.3:run (default-cli) @ edumanage-backend ---
+[INFO] Attaching agents: []
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.3)
+
+2026-02-19T14:33:36.079+05:30  INFO 3876 --- [  restartedMain] c.e.backend.EduManageBackendApplication  : Starting EduManageBackendApplication using Java 21.0.8 with PID 3876 (C:\Users\Mansi Kushwaha\.gemini\antigravity\scratch\EduManagePro\edumanage-backend\target\classes started by Mansi Kushwaha in C:\Users\Mansi Kushwaha\.gemini\antigravity\scratch\EduManagePro\edumanage-backend)
+2026-02-19T14:33:36.083+05:30 DEBUG 3876 --- [  restartedMain] c.e.backend.EduManageBackendApplication  : Running with Spring Boot v3.2.3, Spring v6.1.4
+2026-02-19T14:33:36.083+05:30  INFO 3876 --- [  restartedMain] c.e.backend.EduManageBackendApplication  : No active profile set, falling back to 1 default profile: "default"
+2026-02-19T14:33:36.165+05:30  INFO 3876 --- [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-02-19T14:33:36.165+05:30  INFO 3876 --- [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-02-19T14:33:37.666+05:30  INFO 3876 --- [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-19T14:33:37.811+05:30  INFO 3876 --- [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 127 ms. Found 5 JPA repository interfaces.
+2026-02-19T14:33:39.196+05:30  INFO 3876 --- [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8081 (http)
+2026-02-19T14:33:39.221+05:30  INFO 3876 --- [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-02-19T14:33:39.221+05:30  INFO 3876 --- [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.19]
+2026-02-19T14:33:39.311+05:30  INFO 3876 --- [  restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-02-19T14:33:39.314+05:30  INFO 3876 --- [  restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 3145 ms
+2026-02-19T14:33:39.575+05:30  INFO 3876 --- [  restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-02-19T14:33:39.633+05:30  INFO 3876 --- [  restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.4.4.Final
+2026-02-19T14:33:39.694+05:30  INFO 3876 --- [  restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-02-19T14:33:40.039+05:30  INFO 3876 --- [  restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-19T14:33:40.133+05:30  INFO 3876 --- [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-02-19T14:33:40.320+05:30  INFO 3876 --- [  restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@5fab081c
+2026-02-19T14:33:40.321+05:30  INFO 3876 --- [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-02-19T14:33:40.378+05:30  WARN 3876 --- [  restartedMain] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-02-19T14:33:41.772+05:30  INFO 3876 --- [  restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+Hibernate: 
+    alter table roles 
+       modify column name enum ('ROLE_ADMIN','ROLE_TEACHER','ROLE_STUDENT','ROLE_PARENT') not null
+2026-02-19T14:33:42.054+05:30  INFO 3876 --- [  restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-19T14:33:42.731+05:30 DEBUG 3876 --- [  restartedMain] c.e.backend.security.AuthTokenFilter     : Filter 'authTokenFilter' configured for use
+2026-02-19T14:33:43.045+05:30  WARN 3876 --- [  restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-02-19T14:33:43.652+05:30  INFO 3876 --- [  restartedMain] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@383456b2, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@6b504f2d, org.springframework.security.web.context.SecurityContextHolderFilter@501528f6, org.springframework.security.web.header.HeaderWriterFilter@68956c9f, org.springframework.web.filter.CorsFilter@4a7d8b42, org.springframework.security.web.authentication.logout.LogoutFilter@72fbbbe0, com.edumanage.backend.security.AuthTokenFilter@5ae4ea25, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@3c630631, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@67a79b43, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@46d3c71d, org.springframework.security.web.session.SessionManagementFilter@3a4a699b, org.springframework.security.web.access.ExceptionTranslationFilter@41c7a27b, org.springframework.security.web.access.intercept.AuthorizationFilter@22fe2930]
+2026-02-19T14:33:44.329+05:30  INFO 3876 --- [  restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2026-02-19T14:33:44.438+05:30  INFO 3876 --- [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8081 (http) with context path ''
+2026-02-19T14:33:44.455+05:30  INFO 3876 --- [  restartedMain] c.e.backend.EduManageBackendApplication  : Started EduManageBackendApplication in 9.039 seconds (process running for 9.854)
+2026-02-19T14:33:44.606+05:30  INFO 3876 --- [  restartedMain] c.e.backend.config.DataInitializer       : Successfully updated roles table schema
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+Hibernate: 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+2026-02-19T14:47:08.176+05:30  INFO 3876 --- [nio-8081-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-02-19T14:47:08.177+05:30  INFO 3876 --- [nio-8081-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-02-19T14:47:08.184+05:30  INFO 3876 --- [nio-8081-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 7 ms
+2026-02-19T14:47:08.253+05:30 DEBUG 3876 --- [nio-8081-exec-1] o.s.security.web.FilterChainProxy        : Securing GET /api/auth/validate
+2026-02-19T14:47:08.283+05:30 DEBUG 3876 --- [nio-8081-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter  : Set SecurityContextHolder to anonymous SecurityContext
+2026-02-19T14:47:08.287+05:30 DEBUG 3876 --- [nio-8081-exec-1] o.s.security.web.FilterChainProxy        : Secured GET /api/auth/validate
+^CTerminate batch job (Y/N)? 
