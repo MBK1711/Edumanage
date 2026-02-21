@@ -1,42 +1,63 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import '../landing_animations.css';
+import {
+    LayoutDashboard,
+    GraduationCap,
+    Users,
+    BookOpen,
+    Building2,
+    BarChart3,
+    Settings,
+    LogOut,
+    CalendarDays,
+    ClipboardList,
+    BookMarked,
+    CheckSquare,
+    FileText,
+    Star,
+    Library,
+    MessagesSquare,
+    Calendar,
+    Trophy,
+    CreditCard,
+    UserCircle,
+    Briefcase,
+} from 'lucide-react';
 
 const NAV_CONFIG = {
     ADMIN: [
-        { id: 'overview', label: 'Overview', icon: '📊' },
-        { id: 'students', label: 'Students', icon: '🎓' },
-        { id: 'teachers', label: 'Teachers', icon: '👨‍🏫' },
-        { id: 'courses', label: 'Courses', icon: '📚' },
-        { id: 'departments', label: 'Departments', icon: '🏛️' },
-        { id: 'analytics', label: 'Analytics', icon: '📈' },
-        { id: 'settings', label: 'Settings', icon: '⚙️' },
+        { id: 'overview', label: 'Overview', Icon: LayoutDashboard },
+        { id: 'students', label: 'Students', Icon: GraduationCap },
+        { id: 'teachers', label: 'Teachers', Icon: Briefcase },
+        { id: 'courses', label: 'Courses', Icon: BookOpen },
+        { id: 'departments', label: 'Departments', Icon: Building2 },
+        { id: 'analytics', label: 'Analytics', Icon: BarChart3 },
+        { id: 'settings', label: 'Settings', Icon: Settings },
     ],
     TEACHER: [
-        { id: 'overview', label: 'Overview', icon: '📊' },
-        { id: 'schedule', label: 'Schedule', icon: '🗓️' },
-        { id: 'courses', label: 'My Courses', icon: '📚' },
-        { id: 'students', label: 'Students', icon: '👥' },
-        { id: 'attendance', label: 'Attendance', icon: '✅' },
-        { id: 'assignments', label: 'Assignments', icon: '📝' },
-        { id: 'gradebook', label: 'Gradebook', icon: '💯' },
-        { id: 'resources', label: 'Resource Library', icon: '🗄️' },
-        { id: 'parents', label: 'Parent Meetings', icon: '👨‍👩‍👧' },
-        { id: 'analytics', label: 'Analytics', icon: '📈' },
+        { id: 'overview', label: 'Overview', Icon: LayoutDashboard },
+        { id: 'schedule', label: 'Schedule', Icon: CalendarDays },
+        { id: 'courses', label: 'My Courses', Icon: BookOpen },
+        { id: 'students', label: 'Students', Icon: Users },
+        { id: 'attendance', label: 'Attendance', Icon: CheckSquare },
+        { id: 'assignments', label: 'Assignments', Icon: ClipboardList },
+        { id: 'gradebook', label: 'Gradebook', Icon: Star },
+        { id: 'resources', label: 'Resource Library', Icon: Library },
+        { id: 'parents', label: 'Parent Meetings', Icon: MessagesSquare },
+        { id: 'analytics', label: 'Analytics', Icon: BarChart3 },
     ],
-
     STUDENT: [
-        { id: 'overview', label: 'Overview', icon: '📊' },
-        { id: 'subjects', label: 'My Subjects', icon: '📚' },
-        { id: 'department', label: 'Department', icon: '🏛️' },
-        { id: 'academics', label: 'Academic Year', icon: '🎓' },
-        { id: 'timetable', label: 'Timetable', icon: '📅' },
-        { id: 'assignments', label: 'Assignments', icon: '📝' },
-        { id: 'results', label: 'Results', icon: '🏆' },
-        { id: 'resources', label: 'Library', icon: '📖' },
-        { id: 'payments', label: 'Fee Payments', icon: '💳' },
-        { id: 'profile', label: 'Profile', icon: '👤' },
+        { id: 'overview', label: 'Overview', Icon: LayoutDashboard },
+        { id: 'subjects', label: 'My Subjects', Icon: BookMarked },
+        { id: 'department', label: 'Department', Icon: Building2 },
+        { id: 'academics', label: 'Academic Year', Icon: GraduationCap },
+        { id: 'timetable', label: 'Timetable', Icon: Calendar },
+        { id: 'assignments', label: 'Assignments', Icon: FileText },
+        { id: 'results', label: 'Results', Icon: Trophy },
+        { id: 'resources', label: 'Library', Icon: Library },
+        { id: 'payments', label: 'Fee Payments', Icon: CreditCard },
+        { id: 'profile', label: 'Profile', Icon: UserCircle },
     ],
 };
 
@@ -44,7 +65,6 @@ export default function Sidebar({ activeTab, setActiveTab, role }) {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
 
-    // Default to STUDENT if role not found
     const navItems = NAV_CONFIG[role] || NAV_CONFIG.STUDENT;
 
     const handleLogout = () => {
@@ -52,38 +72,62 @@ export default function Sidebar({ activeTab, setActiveTab, role }) {
         navigate('/login');
     };
 
+    const fullName = user
+        ? [user.firstName, user.lastName].filter(Boolean).join(' ') || user.username
+        : 'Guest';
+
     const initials = user
-        ? `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`.toUpperCase()
-        : user?.username?.[0]?.toUpperCase() || '?';
+        ? `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`.toUpperCase() || user?.username?.[0]?.toUpperCase() || '?'
+        : '?';
 
     return (
         <aside className="sidebar animate-fade-in">
             <div className="sidebar-header">
-                <div className="sidebar-logo feature-icon-pulse">🎓</div>
+                <div className="sidebar-logo feature-icon-pulse" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <GraduationCap size={26} strokeWidth={2.2} />
+                </div>
                 <span className="sidebar-title">EduManage</span>
             </div>
 
             <nav className="sidebar-nav">
                 <div className="nav-section">
                     <div className="nav-label">Main Menu</div>
-                    {navItems.map(item => (
-                        <div
-                            key={item.id}
-                            id={`nav-${item.id}`}
-                            className={`nav-item ${activeTab === item.id ? 'active' : ''} hover-lift-3d`}
-                            style={{ transition: 'all 0.2s ease', margin: '4px 0' }}
-                            onClick={() => setActiveTab(item.id)}
-                        >
-                            <span className="nav-item-icon feature-icon-pulse">{item.icon}</span>
-                            {item.label}
-                        </div>
-                    ))}
+                    {navItems.map(item => {
+                        const isActive = activeTab === item.id;
+                        return (
+                            <div
+                                key={item.id}
+                                id={`nav-${item.id}`}
+                                className={`nav-item ${isActive ? 'active' : ''} hover-lift-3d`}
+                                style={{ transition: 'all 0.2s ease', margin: '2px 0' }}
+                                onClick={() => setActiveTab(item.id)}
+                            >
+                                <span className="nav-item-icon" style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    width: '22px',
+                                    height: '22px',
+                                    opacity: isActive ? 1 : 0.7,
+                                    transition: 'opacity 0.2s ease',
+                                }}>
+                                    <item.Icon
+                                        size={18}
+                                        strokeWidth={isActive ? 2.5 : 2}
+                                    />
+                                </span>
+                                {item.label}
+                            </div>
+                        );
+                    })}
                 </div>
 
                 <div className="nav-section">
                     <div className="nav-label">System</div>
-                    <div className="nav-item" onClick={handleLogout}>
-                        <span className="nav-item-icon">🚪</span>
+                    <div className="nav-item" onClick={handleLogout} style={{ color: 'var(--danger)', opacity: 0.85 }}>
+                        <span className="nav-item-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '22px', height: '22px' }}>
+                            <LogOut size={18} strokeWidth={2} />
+                        </span>
                         Logout
                     </div>
                 </div>
@@ -94,7 +138,7 @@ export default function Sidebar({ activeTab, setActiveTab, role }) {
                     <div className="user-avatar">{initials}</div>
                     <div className="user-info">
                         <div className="user-name">
-                            {user?.firstName || user?.username}
+                            {fullName}
                         </div>
                         <span className="user-role-badge">{role}</span>
                     </div>

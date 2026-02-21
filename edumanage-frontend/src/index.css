@@ -2,6 +2,20 @@
 
 /* ===== PREMIUM CSS VARIABLES ===== */
 :root {
+  /* Dynamic Palette Colors for Components */
+  --indigo: #6366f1;
+  --indigo-rgb: 99, 102, 241;
+  --sky: #0ea5e9;
+  --sky-rgb: 14, 165, 233;
+  --amber: #f59e0b;
+  --amber-rgb: 245, 158, 11;
+  --rose: #f43f5e;
+  --rose-rgb: 244, 63, 94;
+  --green: #10b981;
+  --green-rgb: 16, 185, 129;
+  --purple: #8b5cf6;
+  --purple-rgb: 139, 92, 246;
+
   /* Core Colors */
   --primary: #8b5cf6;
   --primary-dark: #7c3aed;

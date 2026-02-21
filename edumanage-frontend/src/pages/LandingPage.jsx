@@ -104,6 +104,17 @@ export default function LandingPage() {
             <header className="hero-section">
                 <div className="container hero-container">
                     <div className="hero-content">
+                        {/* Institution Identity Block */}
+                        <div className="institution-block animate-fade-in">
+                            <div className="institution-name">EduCampus Institute of Technology</div>
+                            <div className="institution-affiliation">
+                                <GraduationCap size={13} />
+                                Affiliated to <strong>National University of Science &amp; Technology (NUST)</strong>
+                                <span className="affil-sep">|</span>
+                                <span className="naac-tag">NAAC A++</span>
+                            </div>
+                        </div>
+
                         <div className="hero-badge">
                             <Star size={12} fill="currentColor" /> Admissions Open 2026-27
                         </div>
@@ -386,7 +397,11 @@ export default function LandingPage() {
                         </div>
                     </div>
                     <div className="footer-bottom">
-                        <p>&copy; 2026 EduCampus Institute of Technology. All rights reserved.</p>
+                        <p>&copy; 2026 <strong>EduCampus Institute of Technology</strong>. All rights reserved.</p>
+                        <p className="footer-affiliation">
+                            <GraduationCap size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px' }} />
+                            Affiliated to <strong>National University of Science &amp; Technology (NUST)</strong> | Approved by AICTE | NAAC A++ Accredited
+                        </p>
                     </div>
                 </div>
             </footer>
