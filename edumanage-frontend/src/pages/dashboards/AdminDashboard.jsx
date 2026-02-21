@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useAuth } from '../../context/AuthContext';
-import { userAPI } from '../../api/api';
+import { userAPI, classAPI } from '../../api/api';
 import toast from 'react-hot-toast';
 import '../../landing_animations.css';
 
@@ -111,10 +111,39 @@ export default function AdminDashboard({ activeTab }) {
     const [viewingTopics, setViewingTopics] = useState(null);
     const [editingSyllabus, setEditingSyllabus] = useState(null);
     const [viewingTeacherProfile, setViewingTeacherProfile] = useState(null);
+    const [viewingDeptSyllabus, setViewingDeptSyllabus] = useState(null);
+    const [viewingDeptStaff, setViewingDeptStaff] = useState(null);
+    const [activeSettingsTab, setActiveSettingsTab] = useState('General Information');
+    const [departments, setDepartments] = useState(BE_DEPARTMENTS);
 
     useEffect(() => {
         if (activeTab === 'students' || activeTab === 'teachers') fetchUsers();
+        if (activeTab === 'departments') fetchDepartments();
     }, [activeTab]);
+
+    const fetchDepartments = async () => {
+        try {
+            const res = await classAPI.getDepartments();
+            const apiDepts = res.data || [];
+            if (apiDepts.length > 0) {
+                // Map backend shape → the shape our existing JSX card uses
+                const COLOR_MAP = { CSE: 'indigo', IT: 'sky', ECE: 'violet', EE: 'amber', ME: 'orange', CE: 'green' };
+                setDepartments(apiDepts.map(d => ({
+                    id: d.code?.toLowerCase() || String(d.id),
+                    name: d.name,
+                    icon: d.icon || '🏛️',
+                    students: String(d.studentCount ?? '—'),
+                    faculty: String(d.facultyCount ?? '—'),
+                    hod: d.hod || 'TBA',
+                    status: d.status || 'Active',
+                    color: d.color || COLOR_MAP[d.code] || 'indigo',
+                })));
+            }
+            // If the DB is empty, keep the BE_DEPARTMENTS mock as fallback
+        } catch {
+            // Network error → stay on the mock fallback silently
+        }
+    };
 
     const getStudentDetails = (id) => {
         const years = ['1st Year', '2nd Year', '3rd Year', '4th Year'];
@@ -855,7 +884,7 @@ export default function AdminDashboard({ activeTab }) {
             </header>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '24px' }}>
-                {BE_DEPARTMENTS.map(dept => (
+                {departments.map(dept => (
                     <div key={dept.id} className="content-card glass-panel-enhanced hover-lift-3d" style={{ padding: '24px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
                             <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
@@ -882,12 +911,87 @@ export default function AdminDashboard({ activeTab }) {
                         </div>
 
                         <div style={{ marginTop: '20px', display: 'flex', gap: '12px' }}>
-                            <button className="btn btn-secondary btn-full" style={{ padding: '10px' }}>View Syllabus</button>
-                            <button className="btn btn-secondary btn-full" style={{ padding: '10px' }}>Staff Roster</button>
+                            <button className="btn btn-secondary btn-full" style={{ padding: '10px' }} onClick={() => setViewingDeptSyllabus(dept)}>View Syllabus</button>
+                            <button className="btn btn-secondary btn-full" style={{ padding: '10px' }} onClick={() => setViewingDeptStaff(dept)}>Staff Roster</button>
                         </div>
                     </div>
                 ))}
             </div>
+
+            {/* View Dept Syllabus Modal */}
+            {viewingDeptSyllabus && createPortal(
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100000, backdropFilter: 'blur(4px)' }}>
+                    <div className="card animate-fade-in" style={{ width: '90%', maxWidth: '600px', background: 'white', border: '1px solid var(--border)', borderRadius: '16px', overflow: 'hidden', padding: 0 }}>
+                        <div style={{ padding: '24px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', background: `linear-gradient(135deg, rgba(var(--${viewingDeptSyllabus.color}-rgb), 0.1), transparent)` }}>
+                            <div>
+                                <h3 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 4px 0' }}>{viewingDeptSyllabus.name} Syllabus</h3>
+                                <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>Core curriculum and structured topics for 2025-2026</p>
+                            </div>
+                            <button onClick={() => setViewingDeptSyllabus(null)} style={{ background: 'transparent', border: 'none', fontSize: '24px', cursor: 'pointer', color: 'var(--text-muted)' }}>×</button>
+                        </div>
+                        <div style={{ padding: '24px', maxHeight: '500px', overflowY: 'auto' }}>
+                            {[1, 2, 3, 4, 5, 6].map(sem => (
+                                <div key={sem} style={{ marginBottom: '24px' }}>
+                                    <div style={{ fontSize: '14px', fontWeight: 700, color: `var(--${viewingDeptSyllabus.color})`, marginBottom: '12px', borderBottom: '2px solid rgba(0,0,0,0.05)', paddingBottom: '6px' }}>Semester {sem}</div>
+                                    <div style={{ display: 'grid', gap: '8px' }}>
+                                        {[1, 2, 3, 4].map(sub => {
+                                            const subNames = TEACHER_DEPTS.find(t => viewingDeptSyllabus.name.includes(t.name) || (viewingDeptSyllabus.id === 'ece' && t.name === 'Electronics') || (viewingDeptSyllabus.id === 'ee' && t.name === 'Electrical') || (viewingDeptSyllabus.id === 'cv' && t.name === 'Civil') || (viewingDeptSyllabus.id === 'me' && t.name === 'Mechanical'))?.subjects || ['Engineering Mathematics', 'Applied Physics', 'Communication Skills', 'Engineering Graphics'];
+                                            return (
+                                                <div key={sub} style={{ background: 'var(--bg-secondary)', padding: '12px 16px', borderRadius: '8px', fontSize: '14px', color: 'var(--text-primary)', fontWeight: 500, display: 'flex', justifyContent: 'space-between' }}>
+                                                    <span>📚 {subNames[sub % subNames.length]} {(sem > 2) ? (['I', 'II', 'III'][sub % 3]) : ''}</span>
+                                                    <span style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{sem * sub + 10} Credits</span>
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        <div style={{ padding: '16px 24px', background: 'rgba(0,0,0,0.02)', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end' }}>
+                            <button className="btn btn-primary btn-sm" onClick={() => setViewingDeptSyllabus(null)}>Close Syllabus</button>
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
+
+            {/* View Dept Staff Modal */}
+            {viewingDeptStaff && createPortal(
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100000, backdropFilter: 'blur(4px)' }}>
+                    <div className="card animate-fade-in" style={{ width: '90%', maxWidth: '700px', background: 'white', border: '1px solid var(--border)', borderRadius: '16px', overflow: 'hidden', padding: 0 }}>
+                        <div style={{ padding: '24px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: `linear-gradient(135deg, rgba(var(--${viewingDeptStaff.color}-rgb), 0.8), rgba(var(--${viewingDeptStaff.color}-rgb), 1))` }}>
+                            <div>
+                                <h3 style={{ fontSize: '20px', fontWeight: 800, color: 'white', margin: '0 0 4px 0' }}>{viewingDeptStaff.name} Staff</h3>
+                                <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.9)', margin: 0 }}>Showing academic faculty roster</p>
+                            </div>
+                            <button onClick={() => setViewingDeptStaff(null)} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', width: '32px', height: '32px', borderRadius: '50%', color: 'white', fontSize: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
+                        </div>
+                        <div style={{ padding: '24px', maxHeight: '500px', overflowY: 'auto' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px' }}>
+                                {MOCK_TEACHERS_PARSED.filter(t => viewingDeptStaff.name.includes(t._dept) || (viewingDeptStaff.id === 'ece' && t._dept === 'Electronics') || (viewingDeptStaff.id === 'ee' && t._dept === 'Electrical') || (viewingDeptStaff.id === 'cv' && t._dept === 'Civil') || (viewingDeptStaff.id === 'me' && t._dept === 'Mechanical')).slice(0, 10).map((t, i) => (
+                                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '16px', background: 'var(--bg-secondary)', borderRadius: '12px', border: '1px solid rgba(0,0,0,0.03)' }}>
+                                        <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: `var(--${viewingDeptStaff.color})`, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', fontWeight: 700 }}>
+                                            {t.firstName[0]}
+                                        </div>
+                                        <div>
+                                            <div style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '15px' }}>{t.firstName} {t.lastName}</div>
+                                            <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '4px' }}>{t._subject}</div>
+                                            <span className="status-badge" style={{ background: t.active ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', color: t.active ? 'var(--success)' : 'var(--danger)', padding: '2px 8px', fontSize: '10px' }}>
+                                                {t.active ? 'Active' : 'On Leave'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        <div style={{ padding: '16px 24px', background: 'rgba(0,0,0,0.02)', borderTop: '1px solid var(--border)', display: 'flex', justifyItems: 'space-between', alignItems: 'center' }}>
+                            <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Showing 10 faculty members</div>
+                            <button className="btn btn-primary btn-sm" style={{ marginLeft: 'auto' }} onClick={() => setViewingDeptStaff(null)}>Close Roster</button>
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
         </div>
     );
 
@@ -926,10 +1030,10 @@ export default function AdminDashboard({ activeTab }) {
 
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
                 {/* Custom CSS Chart for Revenue Growth */}
-                <div className="card glass-panel-enhanced">
+                <div className="card glass-panel-enhanced" style={{ padding: '24px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                        <h3 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)' }}>Revenue Growth (Current Year)</h3>
-                        <select className="input-field" style={{ width: 'auto', padding: '8px 12px', fontSize: '13px' }}>
+                        <h3 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>Revenue Growth (Current Year)</h3>
+                        <select className="input-field" style={{ width: 'auto', padding: '8px 12px', fontSize: '13px', margin: 0 }}>
                             <option>2025 - 2026</option>
                             <option>2024 - 2025</option>
                         </select>
@@ -951,8 +1055,8 @@ export default function AdminDashboard({ activeTab }) {
                     </div>
                 </div>
 
-                <div className="card glass-panel-enhanced">
-                    <h3 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '24px' }}>Department Distribution</h3>
+                <div className="card glass-panel-enhanced" style={{ padding: '24px' }}>
+                    <h3 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 24px 0' }}>Department Distribution</h3>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                         {[
                             { name: 'Computer Science', pct: '35%', color: 'indigo' },
@@ -991,17 +1095,17 @@ export default function AdminDashboard({ activeTab }) {
             <div style={{ display: 'grid', gridTemplateColumns: 'minmax(250px, 1fr) 3fr', gap: '32px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {['General Information', 'Academic Calendar', 'Payment Gateways', 'Email Notifications', 'Security & Access'].map((t, i) => (
-                        <button key={i} style={{
+                        <button key={i} onClick={() => setActiveSettingsTab(t)} style={{
                             padding: '16px',
                             textAlign: 'left',
-                            background: i === 0 ? 'var(--primary)' : 'transparent',
-                            color: i === 0 ? 'white' : 'var(--text-secondary)',
+                            background: activeSettingsTab === t ? 'var(--primary)' : 'transparent',
+                            color: activeSettingsTab === t ? 'white' : 'var(--text-secondary)',
                             borderRadius: '12px',
                             border: 'none',
-                            fontWeight: i === 0 ? 700 : 500,
+                            fontWeight: activeSettingsTab === t ? 700 : 500,
                             cursor: 'pointer',
                             transition: 'all 0.2s',
-                            boxShadow: i === 0 ? '0 4px 12px rgba(var(--primary-rgb), 0.3)' : 'none'
+                            boxShadow: activeSettingsTab === t ? '0 4px 12px rgba(var(--primary-rgb), 0.3)' : 'none'
                         }}>
                             {t}
                         </button>
@@ -1009,62 +1113,194 @@ export default function AdminDashboard({ activeTab }) {
                 </div>
 
                 <div className="card glass-panel-enhanced" style={{ padding: '32px' }}>
-                    <h2 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '24px', borderBottom: '1px solid var(--border)', paddingBottom: '16px' }}>General Information</h2>
+                    {activeSettingsTab === 'General Information' && (
+                        <div className="animate-fade-in">
+                            <h2 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '24px', borderBottom: '1px solid var(--border)', paddingBottom: '16px' }}>General Information</h2>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '24px' }}>
-                        <div className="form-group">
-                            <label className="form-label" style={{ fontWeight: 600 }}>Institution Name</label>
-                            <input type="text" className="input-field" defaultValue="EduManage University" style={{ padding: '12px', borderRadius: '10px' }} />
-                        </div>
-                        <div className="form-group">
-                            <label className="form-label" style={{ fontWeight: 600 }}>University Code</label>
-                            <input type="text" className="input-field" defaultValue="EDU-PRO-2025" style={{ padding: '12px', borderRadius: '10px' }} />
-                        </div>
-                    </div>
-
-                    <div className="form-group" style={{ marginBottom: '24px' }}>
-                        <label className="form-label" style={{ fontWeight: 600 }}>Official Address</label>
-                        <textarea className="input-field" rows="3" defaultValue="123 Education Boulevard, Knowledge City, State - 400001" style={{ padding: '12px', borderRadius: '10px', resize: 'vertical' }} />
-                    </div>
-
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '32px' }}>
-                        <div className="form-group">
-                            <label className="form-label" style={{ fontWeight: 600 }}>Support Email</label>
-                            <input type="email" className="input-field" defaultValue="support@edumanage.edu" style={{ padding: '12px', borderRadius: '10px' }} />
-                        </div>
-                        <div className="form-group">
-                            <label className="form-label" style={{ fontWeight: 600 }}>Contact Number</label>
-                            <input type="text" className="input-field" defaultValue="+91 1800-456-7890" style={{ padding: '12px', borderRadius: '10px' }} />
-                        </div>
-                    </div>
-
-                    <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '20px', borderBottom: '1px solid var(--border)', paddingBottom: '12px' }}>System Preferences</h2>
-
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                        {[
-                            { title: 'Enable SMS Notifications', desc: 'Send automated SMS warnings for low attendance', checked: true },
-                            { title: 'Automated Fee Reminders', desc: 'Send emails 7 days before fee due date', checked: true },
-                            { title: 'Public Syllabus Viewing', desc: 'Allow visitors to see course syllabus without logging in', checked: false }
-                        ].map((pref, i) => (
-                            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', background: 'rgba(0,0,0,0.02)', borderRadius: '12px', border: '1px solid rgba(0,0,0,0.02)' }}>
-                                <div>
-                                    <div style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>{pref.title}</div>
-                                    <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{pref.desc}</div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '24px' }}>
+                                <div className="form-group">
+                                    <label className="form-label" style={{ fontWeight: 600 }}>Institution Name</label>
+                                    <input type="text" className="input-field" defaultValue="EduManage University" style={{ padding: '12px', borderRadius: '10px' }} />
                                 </div>
-                                <div style={{
-                                    width: '48px', height: '26px', background: pref.checked ? 'var(--green)' : 'var(--text-muted)',
-                                    borderRadius: '13px', position: 'relative', cursor: 'pointer',
-                                    transition: 'background 0.3s'
-                                }}>
-                                    <div style={{
-                                        width: '22px', height: '22px', background: 'white', borderRadius: '50%',
-                                        position: 'absolute', top: '2px', left: pref.checked ? '24px' : '2px',
-                                        transition: 'left 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)', boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
-                                    }} />
+                                <div className="form-group">
+                                    <label className="form-label" style={{ fontWeight: 600 }}>University Code</label>
+                                    <input type="text" className="input-field" defaultValue="EDU-PRO-2025" style={{ padding: '12px', borderRadius: '10px' }} />
                                 </div>
                             </div>
-                        ))}
-                    </div>
+
+                            <div className="form-group" style={{ marginBottom: '24px' }}>
+                                <label className="form-label" style={{ fontWeight: 600 }}>Official Address</label>
+                                <textarea className="input-field" rows="3" defaultValue="123 Education Boulevard, Knowledge City, State - 400001" style={{ padding: '12px', borderRadius: '10px', resize: 'vertical' }} />
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '32px' }}>
+                                <div className="form-group">
+                                    <label className="form-label" style={{ fontWeight: 600 }}>Support Email</label>
+                                    <input type="email" className="input-field" defaultValue="support@edumanage.edu" style={{ padding: '12px', borderRadius: '10px' }} />
+                                </div>
+                                <div className="form-group">
+                                    <label className="form-label" style={{ fontWeight: 600 }}>Contact Number</label>
+                                    <input type="text" className="input-field" defaultValue="+91 1800-456-7890" style={{ padding: '12px', borderRadius: '10px' }} />
+                                </div>
+                            </div>
+
+                            <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '20px', borderBottom: '1px solid var(--border)', paddingBottom: '12px' }}>System Preferences</h2>
+
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                {[
+                                    { title: 'Enable SMS Notifications', desc: 'Send automated SMS warnings for low attendance', checked: true },
+                                    { title: 'Automated Fee Reminders', desc: 'Send emails 7 days before fee due date', checked: true },
+                                    { title: 'Public Syllabus Viewing', desc: 'Allow visitors to see course syllabus without logging in', checked: false }
+                                ].map((pref, i) => (
+                                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', background: 'rgba(0,0,0,0.02)', borderRadius: '12px', border: '1px solid rgba(0,0,0,0.02)' }}>
+                                        <div>
+                                            <div style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>{pref.title}</div>
+                                            <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{pref.desc}</div>
+                                        </div>
+                                        <div style={{
+                                            width: '48px', height: '26px', background: pref.checked ? 'var(--green)' : 'var(--text-muted)',
+                                            borderRadius: '13px', position: 'relative', cursor: 'pointer',
+                                            transition: 'background 0.3s'
+                                        }}>
+                                            <div style={{
+                                                width: '22px', height: '22px', background: 'white', borderRadius: '50%',
+                                                position: 'absolute', top: '2px', left: pref.checked ? '24px' : '2px',
+                                                transition: 'left 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)', boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                                            }} />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {activeSettingsTab === 'Academic Calendar' && (
+                        <div className="animate-fade-in">
+                            <h2 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '24px', borderBottom: '1px solid var(--border)', paddingBottom: '16px' }}>Academic Terms</h2>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '32px' }}>
+                                <div className="form-group">
+                                    <label className="form-label" style={{ fontWeight: 600 }}>Odd Semester Start Date</label>
+                                    <input type="date" className="input-field" defaultValue="2025-07-15" style={{ padding: '12px', borderRadius: '10px' }} />
+                                </div>
+                                <div className="form-group">
+                                    <label className="form-label" style={{ fontWeight: 600 }}>Odd Semester End Date</label>
+                                    <input type="date" className="input-field" defaultValue="2025-11-30" style={{ padding: '12px', borderRadius: '10px' }} />
+                                </div>
+                                <div className="form-group">
+                                    <label className="form-label" style={{ fontWeight: 600 }}>Even Semester Start Date</label>
+                                    <input type="date" className="input-field" defaultValue="2026-01-15" style={{ padding: '12px', borderRadius: '10px' }} />
+                                </div>
+                                <div className="form-group">
+                                    <label className="form-label" style={{ fontWeight: 600 }}>Even Semester End Date</label>
+                                    <input type="date" className="input-field" defaultValue="2026-05-31" style={{ padding: '12px', borderRadius: '10px' }} />
+                                </div>
+                            </div>
+
+                            <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '20px', borderBottom: '1px solid var(--border)', paddingBottom: '12px' }}>Holiday Overrides</h2>
+                            <div style={{ padding: '16px', border: '1px dashed var(--border)', borderRadius: '12px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                                <span style={{ fontSize: '24px', display: 'block', marginBottom: '8px' }}>🏖️</span>
+                                <div>Click to generate default national holidays list</div>
+                            </div>
+                        </div>
+                    )}
+
+                    {activeSettingsTab === 'Payment Gateways' && (
+                        <div className="animate-fade-in">
+                            <h2 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '24px', borderBottom: '1px solid var(--border)', paddingBottom: '16px' }}>Fee Collection Settings</h2>
+                            <div style={{ padding: '16px', background: 'rgba(0,0,0,0.02)', borderRadius: '12px', border: '1px solid var(--border)', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                <div style={{ fontSize: '32px' }}>💳</div>
+                                <div style={{ flex: 1 }}>
+                                    <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>Stripe Integration</div>
+                                    <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Accept international payments securely</div>
+                                </div>
+                                <button className="btn btn-secondary btn-sm">Configure Key</button>
+                            </div>
+
+                            <div style={{ padding: '16px', background: 'rgba(16, 185, 129, 0.05)', borderRadius: '12px', border: '1px solid rgba(16, 185, 129, 0.2)', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                <div style={{ fontSize: '32px' }}>🏦</div>
+                                <div style={{ flex: 1 }}>
+                                    <div style={{ fontWeight: 700, color: 'var(--success)' }}>Razorpay (Active - Default)</div>
+                                    <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Live integration with INR standard fee structures</div>
+                                </div>
+                                <button className="btn btn-sm" style={{ background: 'var(--success)', color: 'white', border: 'none' }}>Connected</button>
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label" style={{ fontWeight: 600 }}>Currency Default</label>
+                                <select className="input-field" style={{ padding: '12px', borderRadius: '10px' }} defaultValue="INR">
+                                    <option value="INR">Indian Rupee (₹)</option>
+                                    <option value="USD">US Dollar ($)</option>
+                                    <option value="EUR">Euro (€)</option>
+                                </select>
+                            </div>
+                        </div>
+                    )}
+
+                    {activeSettingsTab === 'Email Notifications' && (
+                        <div className="animate-fade-in">
+                            <h2 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '24px', borderBottom: '1px solid var(--border)', paddingBottom: '16px' }}>SMTP Configuration</h2>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '24px' }}>
+                                <div className="form-group">
+                                    <label className="form-label" style={{ fontWeight: 600 }}>SMTP Server Host</label>
+                                    <input type="text" className="input-field" defaultValue="smtp.edumanage.edu" style={{ padding: '12px', borderRadius: '10px' }} />
+                                </div>
+                                <div className="form-group">
+                                    <label className="form-label" style={{ fontWeight: 600 }}>SMTP Port</label>
+                                    <input type="text" className="input-field" defaultValue="587" style={{ padding: '12px', borderRadius: '10px' }} />
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '32px' }}>
+                                <div className="form-group">
+                                    <label className="form-label" style={{ fontWeight: 600 }}>Sender Email Line</label>
+                                    <input type="email" className="input-field" defaultValue="no-reply@edumanage.edu" style={{ padding: '12px', borderRadius: '10px' }} />
+                                </div>
+                                <div className="form-group">
+                                    <label className="form-label" style={{ fontWeight: 600 }}>Auth Password</label>
+                                    <input type="password" className="input-field" defaultValue="********" style={{ padding: '12px', borderRadius: '10px' }} />
+                                </div>
+                            </div>
+                            <button className="btn btn-secondary">Send Test Email</button>
+                        </div>
+                    )}
+
+                    {activeSettingsTab === 'Security & Access' && (
+                        <div className="animate-fade-in">
+                            <h2 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '24px', borderBottom: '1px solid var(--border)', paddingBottom: '16px' }}>Authentication Security</h2>
+
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '32px' }}>
+                                {[
+                                    { title: 'Require 2FA for Staff Accounts', desc: 'Enforce two-factor authentication for higher roles', checked: true },
+                                    { title: 'Strict IP Whitelisting', desc: 'Allow Admin dashboard access only from campus network lines', checked: false },
+                                    { title: 'Session Timeout', desc: 'Force logout users who are inactive for longer than 60 minutes', checked: true }
+                                ].map((pref, i) => (
+                                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', background: 'rgba(0,0,0,0.02)', borderRadius: '12px', border: '1px solid rgba(0,0,0,0.02)' }}>
+                                        <div>
+                                            <div style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>{pref.title}</div>
+                                            <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{pref.desc}</div>
+                                        </div>
+                                        <div style={{
+                                            width: '48px', height: '26px', background: pref.checked ? 'var(--green)' : 'var(--text-muted)',
+                                            borderRadius: '13px', position: 'relative', cursor: 'pointer',
+                                            transition: 'background 0.3s'
+                                        }}>
+                                            <div style={{
+                                                width: '22px', height: '22px', background: 'white', borderRadius: '50%',
+                                                position: 'absolute', top: '2px', left: pref.checked ? '24px' : '2px',
+                                                transition: 'left 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)', boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                                            }} />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label" style={{ fontWeight: 600, color: 'var(--danger)' }}>Data Deletion</label>
+                                <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '12px' }}>This operation drops the entire schema table including active student profiles and past analytics. Ensure proper backups.</p>
+                                <button className="btn btn-sm" style={{ background: 'var(--danger)', color: 'white', border: 'none', padding: '10px 16px' }}>Factory Reset Platform</button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

@@ -71,7 +71,17 @@ public class SecurityConfig {
                                                 .permitAll()
                                                 .requestMatchers(
                                                                 org.springframework.security.web.util.matcher.AntPathRequestMatcher
-                                                                                .antMatcher("/api/public/**"))
+                                                                                .antMatcher("/api/public/**"),
+                                                                org.springframework.security.web.util.matcher.AntPathRequestMatcher
+                                                                                .antMatcher("/api/departments"),
+                                                                org.springframework.security.web.util.matcher.AntPathRequestMatcher
+                                                                                .antMatcher("/api/departments/**"),
+                                                                org.springframework.security.web.util.matcher.AntPathRequestMatcher
+                                                                                .antMatcher("/api/courses"),
+                                                                org.springframework.security.web.util.matcher.AntPathRequestMatcher
+                                                                                .antMatcher("/api/courses/**"),
+                                                                org.springframework.security.web.util.matcher.AntPathRequestMatcher
+                                                                                .antMatcher("/error"))
                                                 .permitAll()
                                                 .requestMatchers(
                                                                 org.springframework.security.web.util.matcher.AntPathRequestMatcher

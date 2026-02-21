@@ -1,6 +1,8 @@
 package com.edumanage.backend.config;
 
+import com.edumanage.backend.entity.Department;
 import com.edumanage.backend.entity.Role;
+import com.edumanage.backend.repository.DepartmentRepository;
 import com.edumanage.backend.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
@@ -16,14 +19,44 @@ import java.util.Arrays;
 public class DataInitializer {
 
     private final RoleRepository roleRepository;
+    private final DepartmentRepository departmentRepository;
 
     @Bean
-    public CommandLineRunner initRoles() {
+    public CommandLineRunner initData() {
         return args -> {
+            // --- Seed Roles ---
             Arrays.stream(Role.RoleName.values()).forEach(roleName -> {
                 if (roleRepository.findByName(roleName).isEmpty()) {
                     roleRepository.save(Role.builder().name(roleName).build());
                     log.info("Initialized role: {}", roleName);
+                }
+            });
+
+            // --- Seed Departments ---
+            List<Department> depts = List.of(
+                    Department.builder().code("CSE").name("Computer Science & Eng").icon("💻")
+                            .hod("Dr. Anil Mehta").color("indigo").status("Active")
+                            .studentCount(320).facultyCount(24).build(),
+                    Department.builder().code("IT").name("Information Technology").icon("🌐")
+                            .hod("Dr. Priya Sharma").color("sky").status("Active")
+                            .studentCount(280).facultyCount(20).build(),
+                    Department.builder().code("ECE").name("Electronics & Comm Eng").icon("📡")
+                            .hod("Dr. Ramesh Gupta").color("violet").status("Active")
+                            .studentCount(240).facultyCount(18).build(),
+                    Department.builder().code("EE").name("Electrical Engineering").icon("⚡")
+                            .hod("Dr. Sunita Verma").color("amber").status("Active")
+                            .studentCount(200).facultyCount(16).build(),
+                    Department.builder().code("ME").name("Mechanical Engineering").icon("⚙️")
+                            .hod("Dr. Vijay Kumar").color("orange").status("Active")
+                            .studentCount(260).facultyCount(22).build(),
+                    Department.builder().code("CE").name("Civil Engineering").icon("🏗️")
+                            .hod("Dr. Kavita Singh").color("green").status("Active")
+                            .studentCount(180).facultyCount(14).build());
+
+            depts.forEach(dept -> {
+                if (departmentRepository.findByCode(dept.getCode()).isEmpty()) {
+                    departmentRepository.save(dept);
+                    log.info("Seeded department: {}", dept.getName());
                 }
             });
         };

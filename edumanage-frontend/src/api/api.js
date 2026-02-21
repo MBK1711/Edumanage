@@ -51,4 +51,13 @@ export const userAPI = {
   deleteUser: (id) => api.delete(`/admin/users/${id}`),
 };
 
+// ===== CLASSES & DEPARTMENTS API =====
+export const classAPI = {
+  getDepartments: () => api.get('/departments'),
+  getDepartmentCourses: (deptId) => api.get(`/departments/${deptId}/courses`),
+  createDepartment: (data) => api.post('/departments', data),
+  addCourse: (deptId, data) => api.post(`/departments/${deptId}/courses`, data),
+  deleteDepartment: (deptId) => api.delete(`/departments/${deptId}`)
+};
+
 export default api;

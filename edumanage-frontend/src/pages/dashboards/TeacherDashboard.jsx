@@ -131,8 +131,10 @@ export default function TeacherDashboard({ activeTab }) {
             <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '24px' }}>
                 {/* Student Progress */}
                 <div className="card glass-panel-enhanced animate-fade-in delay-300">
-                    <div className="card-header" style={{ borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div className="card-title">📈 Progress Overview</div>
+                    <div className="card-header" style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <span style={{ fontSize: '20px' }}>📈</span> Progress Overview
+                        </h3>
                         <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600 }}>Latest 6</span>
                     </div>
                     <div style={{ padding: '16px' }}>
@@ -161,8 +163,10 @@ export default function TeacherDashboard({ activeTab }) {
                 {/* Assignments to Grade */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                     <div className="card glass-panel-enhanced animate-fade-in delay-400">
-                        <div className="card-header" style={{ borderBottom: '1px solid var(--border)' }}>
-                            <div className="card-title">📋 Needs Grading</div>
+                        <div className="card-header" style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)' }}>
+                            <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <span style={{ fontSize: '20px' }}>📋</span> Needs Grading
+                            </h3>
                         </div>
                         <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             {MOCK_ASSIGNMENTS.map((a, i) => (
