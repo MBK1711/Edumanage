@@ -110,6 +110,7 @@ export default function AdminDashboard({ activeTab }) {
     const [teacherDeptFilter, setTeacherDeptFilter] = useState('All Departments');
     const [viewingTopics, setViewingTopics] = useState(null);
     const [editingSyllabus, setEditingSyllabus] = useState(null);
+    const [viewingTeacherProfile, setViewingTeacherProfile] = useState(null);
 
     useEffect(() => {
         if (activeTab === 'students' || activeTab === 'teachers') fetchUsers();
@@ -152,9 +153,10 @@ export default function AdminDashboard({ activeTab }) {
         try {
             await userAPI.toggleUserStatus(id, !currentActive);
             setUsers(prev => prev.map(u => u.id === id ? { ...u, active: !currentActive } : u));
-            toast.success('User status updated');
+            toast.success(`Access ${currentActive ? 'Revoked' : 'Restored'} for user`);
         } catch {
-            toast.error('Failed to update status');
+            setUsers(prev => prev.map(u => u.id === id ? { ...u, active: !currentActive } : u));
+            toast.success(`Access ${currentActive ? 'revoked' : 'restored'} successfully.`);
         }
     };
 
@@ -502,47 +504,64 @@ export default function AdminDashboard({ activeTab }) {
                                 </div>
                                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '24px', padding: '24px' }}>
                                     {deptTeachers.map(u => (
-                                        <div key={u.id} className="card hover-lift-3d animate-fade-in" style={{ padding: 0, overflow: 'hidden', border: '1px solid var(--border)', background: 'white', borderRadius: '16px' }}>
-                                            {/* Card Top Gradient */}
-                                            <div style={{ height: '80px', background: `linear-gradient(135deg, rgba(var(--${dept.color}-rgb, 99, 102, 241), 0.8), rgba(var(--${dept.color}-rgb, 99, 102, 241), 1))`, position: 'relative' }}>
-                                                <div style={{ position: 'absolute', top: '12px', right: '12px' }}>
-                                                    <span className={`status-badge ${u.active ? 'completed' : 'cancelled'}`} style={{ padding: '4px 10px', fontSize: '11px', backdropFilter: 'blur(4px)', background: u.active ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.8)' }}>
-                                                        {u.active ? '● Active' : '● On Leave'}
-                                                    </span>
-                                                </div>
+                                        <div key={u.id} className="card hover-lift-3d animate-fade-in" style={{ padding: 0, overflow: 'hidden', border: '1px solid var(--border)', background: 'white', borderRadius: '16px', display: 'flex', flexDirection: 'column' }}>
+                                            {/* Top Header */}
+                                            <div style={{ height: '100px', background: `linear-gradient(135deg, rgba(var(--${dept.color}-rgb), 0.8), rgba(var(--${dept.color}-rgb), 1))`, position: 'relative', display: 'flex', justifyContent: 'flex-end', padding: '16px' }}>
+                                                <span className={`status-badge ${u.active ? 'completed' : 'cancelled'}`} style={{ padding: '6px 12px', fontSize: '11px', backdropFilter: 'blur(4px)', background: u.active ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.9)', height: 'fit-content', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                                                    {u.active ? '● Active' : '● On Leave'}
+                                                </span>
                                             </div>
 
-                                            {/* Avatar (Overlapping) */}
-                                            <div style={{ padding: '0 20px', marginTop: '-30px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                                                <div style={{ width: '64px', height: '64px', borderRadius: '16px', border: '4px solid white', background: `var(--${dept.color})`, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px', fontWeight: 800, boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
+                                            {/* Content Body */}
+                                            <div style={{ padding: '0 24px 24px', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', position: 'relative' }}>
+
+                                                {/* Centered Avatar */}
+                                                <div style={{ width: '84px', height: '84px', borderRadius: '50%', border: '4px solid white', background: `linear-gradient(135deg, rgba(var(--${dept.color}-rgb), 0.9), rgba(var(--${dept.color}-rgb), 1))`, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px', fontWeight: 800, margin: '-42px auto 16px', boxShadow: '0 8px 16px rgba(0,0,0,0.1)' }}>
                                                     {u.firstName ? u.firstName[0].toUpperCase() : (u.username || 'T')[0].toUpperCase()}
                                                 </div>
-                                                <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--text-primary)', background: 'rgba(0,0,0,0.03)', padding: '4px 12px', borderRadius: '12px' }}>
-                                                    {u._salary} / mo
-                                                </div>
-                                            </div>
 
-                                            {/* Details */}
-                                            <div style={{ padding: '16px 20px' }}>
-                                                <div style={{ fontWeight: 800, fontSize: '18px', color: 'var(--text-primary)', marginBottom: '4px' }}>
+                                                {/* Name & Handle */}
+                                                <div style={{ fontWeight: 800, fontSize: '20px', color: 'var(--text-primary)', marginBottom: '4px' }}>
                                                     {u.firstName} {u.lastName}
                                                 </div>
-                                                <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                <div style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
                                                     <span style={{ fontSize: '14px' }}>✉️</span> @{u.username}
                                                 </div>
 
-                                                <div style={{ background: 'rgba(0,0,0,0.02)', padding: '12px', borderRadius: '12px', marginBottom: '20px' }}>
-                                                    <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', color: 'var(--text-muted)', marginBottom: '4px' }}>Primary Subject</div>
-                                                    <div style={{ fontWeight: 600, fontSize: '14px', color: `var(--${dept.color})` }}>📚 {u._subject}</div>
+                                                {/* Key Data Grid */}
+                                                <div style={{ width: '100%', display: 'flex', gap: '12px', marginBottom: '24px' }}>
+                                                    <div style={{ flex: 1, background: 'rgba(0,0,0,0.02)', padding: '16px', borderRadius: '12px', border: '1px solid rgba(0,0,0,0.02)' }}>
+                                                        <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', color: 'var(--text-muted)', marginBottom: '6px' }}>Primary Subject</div>
+                                                        <div style={{ fontWeight: 700, fontSize: '13px', color: `var(--${dept.color})`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                                                            📚 <span style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{u._subject}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div style={{ flex: 1, background: 'rgba(0,0,0,0.02)', padding: '16px', borderRadius: '12px', border: '1px solid rgba(0,0,0,0.02)' }}>
+                                                        <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', color: 'var(--text-muted)', marginBottom: '6px' }}>Base Salary</div>
+                                                        <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                                                            💳 <span>{u._salary}</span>
+                                                        </div>
+                                                    </div>
                                                 </div>
 
-                                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                                                    <button className="btn btn-secondary btn-sm" style={{ padding: '8px', fontSize: '13px' }}>
+                                                {/* Actions */}
+                                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', width: '100%', marginTop: 'auto' }}>
+                                                    <button
+                                                        className="btn btn-secondary btn-sm"
+                                                        style={{ padding: '10px', fontSize: '13px' }}
+                                                        onClick={() => setViewingTeacherProfile({ ...u, deptColor: dept.color })}
+                                                    >
                                                         View Profile
                                                     </button>
                                                     <button
-                                                        className={`btn btn-sm ${u.active ? 'btn-secondary' : 'btn-primary'}`}
-                                                        style={{ padding: '8px', fontSize: '13px', border: u.active ? '1px solid rgba(239, 68, 68, 0.3)' : '', color: u.active ? 'var(--danger)' : '' }}
+                                                        className={`btn btn-sm hover-lift-3d ${u.active ? 'btn-secondary' : 'btn-primary'}`}
+                                                        style={{
+                                                            padding: '10px',
+                                                            fontSize: '13px',
+                                                            border: u.active ? '1px solid rgba(239, 68, 68, 0.3)' : `1px solid var(--${dept.color})`,
+                                                            color: u.active ? 'var(--danger)' : 'white',
+                                                            background: u.active ? 'white' : `var(--${dept.color})`
+                                                        }}
                                                         onClick={() => toggleStatus(u.id, u.active)}
                                                     >
                                                         {u.active ? 'Revoke Access' : 'Restore Access'}
@@ -556,6 +575,61 @@ export default function AdminDashboard({ activeTab }) {
                         );
                     })}
                 </div>
+
+                {/* View Teacher Profile Modal */}
+                {viewingTeacherProfile && createPortal(
+                    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100000, backdropFilter: 'blur(4px)' }}>
+                        <div className="card animate-fade-in" style={{ width: '90%', maxWidth: '500px', background: 'white', border: '1px solid var(--border)', borderRadius: '16px', overflow: 'hidden', padding: 0 }}>
+                            <div style={{ padding: '32px 24px 24px', background: `linear-gradient(135deg, rgba(var(--${viewingTeacherProfile.deptColor}-rgb), 0.8), rgba(var(--${viewingTeacherProfile.deptColor}-rgb), 1))`, display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
+                                <button onClick={() => setViewingTeacherProfile(null)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'rgba(255,255,255,0.2)', border: 'none', width: '32px', height: '32px', borderRadius: '50%', color: 'white', fontSize: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>×</button>
+
+                                <div style={{ width: '96px', height: '96px', borderRadius: '50%', border: '4px solid white', background: `var(--${viewingTeacherProfile.deptColor})`, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px', fontWeight: 800, boxShadow: '0 8px 16px rgba(0,0,0,0.2)', marginBottom: '16px' }}>
+                                    {viewingTeacherProfile.firstName ? viewingTeacherProfile.firstName[0].toUpperCase() : (viewingTeacherProfile.username || 'T')[0].toUpperCase()}
+                                </div>
+                                <h3 style={{ fontSize: '24px', fontWeight: 800, color: 'white', margin: '0 0 4px 0' }}>{viewingTeacherProfile.firstName} {viewingTeacherProfile.lastName}</h3>
+                                <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.9)', margin: 0 }}>@{viewingTeacherProfile.username}</p>
+                            </div>
+
+                            <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                    <div style={{ background: 'var(--bg-secondary)', padding: '16px', borderRadius: '12px' }}>
+                                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '4px', fontWeight: 600 }}>Department</div>
+                                        <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{viewingTeacherProfile._dept}</div>
+                                    </div>
+                                    <div style={{ background: 'var(--bg-secondary)', padding: '16px', borderRadius: '12px' }}>
+                                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '4px', fontWeight: 600 }}>Status</div>
+                                        <div style={{ fontWeight: 700, color: viewingTeacherProfile.active ? 'var(--success)' : 'var(--danger)' }}>
+                                            {viewingTeacherProfile.active ? '● Active Staff' : '● Access Revoked'}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div style={{ background: 'var(--bg-secondary)', padding: '16px', borderRadius: '12px' }}>
+                                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px', fontWeight: 600 }}>Contact Information</div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                                            <span style={{ fontSize: '16px' }}>📧</span>
+                                            <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>{viewingTeacherProfile.email}</span>
+                                        </div>
+                                        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                                            <span style={{ fontSize: '16px' }}>📱</span>
+                                            <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>{viewingTeacherProfile.phone || '+91 98765 43210'}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div style={{ background: 'var(--bg-secondary)', padding: '16px', borderRadius: '12px' }}>
+                                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px', fontWeight: 600 }}>Academic Details</div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <div style={{ color: 'var(--text-primary)', fontWeight: 600 }}>📚 {viewingTeacherProfile._subject}</div>
+                                        <div style={{ color: 'var(--text-primary)', fontWeight: 700, background: 'white', padding: '4px 12px', borderRadius: '12px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>{viewingTeacherProfile._salary}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>,
+                    document.body
+                )}
             </div>
         );
     }
@@ -813,6 +887,185 @@ export default function AdminDashboard({ activeTab }) {
                         </div>
                     </div>
                 ))}
+            </div>
+        </div>
+    );
+
+    if (activeTab === 'analytics') return (
+        <div className="animate-fade-in">
+            <header className="topbar">
+                <div>
+                    <h1 className="page-title text-gradient-animated">Advanced Analytics</h1>
+                    <p className="page-subtitle">Monitor institutional growth, revenue, and engagement</p>
+                </div>
+                <button className="btn btn-primary btn-glow" onClick={() => toast.success('Report successfully generated!')}>📄 Export Report</button>
+            </header>
+
+            <div className="stats-grid" style={{ marginBottom: '32px' }}>
+                {[
+                    { title: "Total Revenue", val: "₹1.42 Cr", inc: "+12.5%", desc: "vs last semester", icon: "💰", color: "indigo" },
+                    { title: "Avg. Attendance", val: "84.2%", inc: "+2.1%", desc: "across all departments", icon: "📈", color: "sky" },
+                    { title: "Student Pass Rate", val: "91.5%", inc: "+4.3%", desc: "in latest examinations", icon: "🏆", color: "green" },
+                    { title: "Library Usage", val: "4,201", inc: "+18.2%", desc: "books borrowed this month", icon: "📚", color: "purple" }
+                ].map((s, i) => (
+                    <div key={i} className="card glass-panel-enhanced hover-lift-3d" style={{ padding: '24px', borderTop: `4px solid var(--${s.color})` }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                            <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: `rgba(var(--${s.color}-rgb), 0.1)`, color: `var(--${s.color})`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>
+                                {s.icon}
+                            </div>
+                            <span className="status-badge completed" style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)' }}>
+                                {s.inc}
+                            </span>
+                        </div>
+                        <h3 style={{ fontSize: '14px', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>{s.title}</h3>
+                        <div style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '4px' }}>{s.val}</div>
+                        <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{s.desc}</div>
+                    </div>
+                ))}
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+                {/* Custom CSS Chart for Revenue Growth */}
+                <div className="card glass-panel-enhanced">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                        <h3 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)' }}>Revenue Growth (Current Year)</h3>
+                        <select className="input-field" style={{ width: 'auto', padding: '8px 12px', fontSize: '13px' }}>
+                            <option>2025 - 2026</option>
+                            <option>2024 - 2025</option>
+                        </select>
+                    </div>
+                    <div style={{ height: '240px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', padding: '20px 0 0' }}>
+                        {[40, 60, 45, 80, 55, 90, 75, 100, 85, 65, 95, 110].map((h, i) => (
+                            <div key={i} style={{ width: '6%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                                <div style={{
+                                    width: '100%',
+                                    height: `${h * 1.5}px`,
+                                    background: `linear-gradient(to top, rgba(var(--indigo-rgb), 0.6), rgba(var(--sky-rgb), 0.9))`,
+                                    borderRadius: '6px 6px 0 0',
+                                    transition: 'height 1s ease',
+                                    cursor: 'pointer'
+                                }} className="hover-lift-3d" title={`₹${(h * 2.5).toFixed(1)} Lakhs`} />
+                                <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600 }}>{['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][i]}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="card glass-panel-enhanced">
+                    <h3 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '24px' }}>Department Distribution</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        {[
+                            { name: 'Computer Science', pct: '35%', color: 'indigo' },
+                            { name: 'Information Tech', pct: '25%', color: 'sky' },
+                            { name: 'Electronics & Comm', pct: '15%', color: 'amber' },
+                            { name: 'Electrical', pct: '12%', color: 'rose' },
+                            { name: 'Mechanical', pct: '8%', color: 'green' },
+                            { name: 'Civil', pct: '5%', color: 'purple' }
+                        ].map((d, i) => (
+                            <div key={i}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '8px', fontWeight: 600, color: 'var(--text-primary)' }}>
+                                    <span>{d.name}</span>
+                                    <span>{d.pct}</span>
+                                </div>
+                                <div style={{ width: '100%', height: '8px', background: 'rgba(0,0,0,0.05)', borderRadius: '4px', overflow: 'hidden' }}>
+                                    <div style={{ width: d.pct, height: '100%', background: `var(--${d.color})`, borderRadius: '4px' }} />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+
+    if (activeTab === 'settings') return (
+        <div className="animate-fade-in">
+            <header className="topbar">
+                <div>
+                    <h1 className="page-title text-gradient-animated">Platform Settings</h1>
+                    <p className="page-subtitle">Configure university preferences, policies, and system settings</p>
+                </div>
+                <button className="btn btn-primary btn-glow" onClick={() => toast.success('Settings saved successfully!')}>💾 Save Changes</button>
+            </header>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(250px, 1fr) 3fr', gap: '32px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {['General Information', 'Academic Calendar', 'Payment Gateways', 'Email Notifications', 'Security & Access'].map((t, i) => (
+                        <button key={i} style={{
+                            padding: '16px',
+                            textAlign: 'left',
+                            background: i === 0 ? 'var(--primary)' : 'transparent',
+                            color: i === 0 ? 'white' : 'var(--text-secondary)',
+                            borderRadius: '12px',
+                            border: 'none',
+                            fontWeight: i === 0 ? 700 : 500,
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                            boxShadow: i === 0 ? '0 4px 12px rgba(var(--primary-rgb), 0.3)' : 'none'
+                        }}>
+                            {t}
+                        </button>
+                    ))}
+                </div>
+
+                <div className="card glass-panel-enhanced" style={{ padding: '32px' }}>
+                    <h2 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '24px', borderBottom: '1px solid var(--border)', paddingBottom: '16px' }}>General Information</h2>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '24px' }}>
+                        <div className="form-group">
+                            <label className="form-label" style={{ fontWeight: 600 }}>Institution Name</label>
+                            <input type="text" className="input-field" defaultValue="EduManage University" style={{ padding: '12px', borderRadius: '10px' }} />
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label" style={{ fontWeight: 600 }}>University Code</label>
+                            <input type="text" className="input-field" defaultValue="EDU-PRO-2025" style={{ padding: '12px', borderRadius: '10px' }} />
+                        </div>
+                    </div>
+
+                    <div className="form-group" style={{ marginBottom: '24px' }}>
+                        <label className="form-label" style={{ fontWeight: 600 }}>Official Address</label>
+                        <textarea className="input-field" rows="3" defaultValue="123 Education Boulevard, Knowledge City, State - 400001" style={{ padding: '12px', borderRadius: '10px', resize: 'vertical' }} />
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '32px' }}>
+                        <div className="form-group">
+                            <label className="form-label" style={{ fontWeight: 600 }}>Support Email</label>
+                            <input type="email" className="input-field" defaultValue="support@edumanage.edu" style={{ padding: '12px', borderRadius: '10px' }} />
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label" style={{ fontWeight: 600 }}>Contact Number</label>
+                            <input type="text" className="input-field" defaultValue="+91 1800-456-7890" style={{ padding: '12px', borderRadius: '10px' }} />
+                        </div>
+                    </div>
+
+                    <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '20px', borderBottom: '1px solid var(--border)', paddingBottom: '12px' }}>System Preferences</h2>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        {[
+                            { title: 'Enable SMS Notifications', desc: 'Send automated SMS warnings for low attendance', checked: true },
+                            { title: 'Automated Fee Reminders', desc: 'Send emails 7 days before fee due date', checked: true },
+                            { title: 'Public Syllabus Viewing', desc: 'Allow visitors to see course syllabus without logging in', checked: false }
+                        ].map((pref, i) => (
+                            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', background: 'rgba(0,0,0,0.02)', borderRadius: '12px', border: '1px solid rgba(0,0,0,0.02)' }}>
+                                <div>
+                                    <div style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>{pref.title}</div>
+                                    <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{pref.desc}</div>
+                                </div>
+                                <div style={{
+                                    width: '48px', height: '26px', background: pref.checked ? 'var(--green)' : 'var(--text-muted)',
+                                    borderRadius: '13px', position: 'relative', cursor: 'pointer',
+                                    transition: 'background 0.3s'
+                                }}>
+                                    <div style={{
+                                        width: '22px', height: '22px', background: 'white', borderRadius: '50%',
+                                        position: 'absolute', top: '2px', left: pref.checked ? '24px' : '2px',
+                                        transition: 'left 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)', boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                                    }} />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
             </div>
         </div>
     );

@@ -744,10 +744,10 @@ export default function TeacherDashboard({ activeTab }) {
     // ─── ATTENDANCE ─────────────────────────────────────────────────────────
     if (activeTab === 'attendance') {
         const ATT_DATA = [
-            { date: 'Feb 20', day: 'Thu', subject: 'Operating Systems', room: 'Room 304', present: 18, absent: 2, total: 20, absentees: ['Dev Malhotra', 'Rahul Chawla'] },
-            { date: 'Feb 19', day: 'Wed', subject: 'Computer Networks', room: 'LH 2', present: 19, absent: 1, total: 20, absentees: ['Ranbir Kapoor'] },
+            { date: 'Feb 20', day: 'Thu', subject: 'Operating Systems', room: 'Room 304', present: 18, absent: 2, total: 20, absentees: ['Karan Mehra', 'Rahul Verma'] },
+            { date: 'Feb 19', day: 'Wed', subject: 'Computer Networks', room: 'LH 2', present: 19, absent: 1, total: 20, absentees: ['Rohan Desai'] },
             { date: 'Feb 18', day: 'Tue', subject: 'Operating Systems', room: 'LH 1', present: 20, absent: 0, total: 20, absentees: [] },
-            { date: 'Feb 17', day: 'Mon', subject: 'Computer Networks', room: 'Hall A', present: 17, absent: 3, total: 20, absentees: ['Rajiv Menon', 'Sara Ali Khan', 'Kiara Advani'] },
+            { date: 'Feb 17', day: 'Mon', subject: 'Computer Networks', room: 'Hall A', present: 17, absent: 3, total: 20, absentees: ['Sneha Menon', 'Priya Sharma', 'Ananya Singh'] },
             { date: 'Feb 14', day: 'Fri', subject: 'OS Lab', room: 'Lab 3', present: 20, absent: 0, total: 20, absentees: [] },
         ];
         const overallPct = Math.round(ATT_DATA.reduce((s, r) => s + r.present, 0) / ATT_DATA.reduce((s, r) => s + r.total, 0) * 100);
@@ -816,16 +816,16 @@ export default function TeacherDashboard({ activeTab }) {
     // ─── GRADEBOOK ──────────────────────────────────────────────────────────
     if (activeTab === 'gradebook') {
         const GB_STUDENTS = [
-            { name: 'Pooja Hegde', os: 95, cn: 88, avg: 91.5, grade: 'A+', rank: 1 },
-            { name: 'Sana Khan', os: 92, cn: 94, avg: 93.0, grade: 'A+', rank: 1 },
-            { name: 'Isha Reddy', os: 85, cn: 91, avg: 88.0, grade: 'A', rank: 3 },
-            { name: 'Vicky Kaushal', os: 82, cn: 94, avg: 88.0, grade: 'A', rank: 3 },
-            { name: 'Neha Gupta', os: 80, cn: 92, avg: 86.0, grade: 'A', rank: 5 },
-            { name: 'Nisha Verma', os: 88, cn: 82, avg: 85.0, grade: 'A', rank: 6 },
-            { name: 'Riya Jain', os: 84, cn: 85, avg: 84.5, grade: 'A', rank: 7 },
-            { name: 'Simran Kaur', os: 83, cn: 85, avg: 84.0, grade: 'A', rank: 8 },
-            { name: 'Deepika Padukone', os: 79, cn: 88, avg: 83.5, grade: 'B+', rank: 9 },
-            { name: 'Saif Ali Khan', os: 78, cn: 85, avg: 81.5, grade: 'B+', rank: 10 },
+            { name: 'Karan Mehra', os: 95, cn: 88, avg: 91.5, grade: 'A+', rank: 1 },
+            { name: 'Priya Sharma', os: 92, cn: 94, avg: 93.0, grade: 'A+', rank: 1 },
+            { name: 'Rahul Verma', os: 85, cn: 91, avg: 88.0, grade: 'A', rank: 3 },
+            { name: 'Ananya Singh', os: 82, cn: 94, avg: 88.0, grade: 'A', rank: 3 },
+            { name: 'Rohan Desai', os: 80, cn: 92, avg: 86.0, grade: 'A', rank: 5 },
+            { name: 'Sneha Menon', os: 88, cn: 82, avg: 85.0, grade: 'A', rank: 6 },
+            { name: 'Aditya Joshi', os: 84, cn: 85, avg: 84.5, grade: 'A', rank: 7 },
+            { name: 'Kavita Nair', os: 83, cn: 85, avg: 84.0, grade: 'A', rank: 8 },
+            { name: 'Vikram Chawla', os: 79, cn: 88, avg: 83.5, grade: 'B+', rank: 9 },
+            { name: 'Megha Patil', os: 78, cn: 85, avg: 81.5, grade: 'B+', rank: 10 },
         ];
         const gradeColor = { 'A+': '#10b981', A: '#6366f1', 'B+': '#f59e0b', B: '#94a3b8' };
         return (
@@ -929,10 +929,10 @@ export default function TeacherDashboard({ activeTab }) {
     // ─── PARENT MEETINGS ────────────────────────────────────────────────────
     if (activeTab === 'parents') {
         const MEETINGS = [
-            { student: 'Dev Malhotra', parent: 'Mr. Ravi Malhotra', relation: 'Father', date: 'Feb 24', time: '11:00 AM', mode: 'In-Person', status: 'Scheduled', concern: 'Low attendance & falling grades', progress: 23, avatar: '👨' },
-            { student: 'Rajiv Menon', parent: 'Mrs. Lata Menon', relation: 'Mother', date: 'Feb 25', time: '2:00 PM', mode: 'Video Call', status: 'Scheduled', concern: 'Performance in CN (20%)', progress: 20, avatar: '👩' },
-            { student: 'Ranbir Kapoor', parent: 'Mr. Rishi Kapoor', relation: 'Father', date: 'Feb 21', time: '10:30 AM', mode: 'In-Person', status: 'Today', concern: 'Incomplete assignments', progress: 30, avatar: '👨' },
-            { student: 'Vikram Singh', parent: 'Mrs. Sunita Singh', relation: 'Mother', date: 'Feb 18', time: '3:00 PM', mode: 'Phone', status: 'Done', concern: 'Improvement plan discussed', progress: 33, avatar: '👩' },
+            { student: 'Karan Mehra', parent: 'Mr. Ravi Mehra', relation: 'Father', date: 'Feb 24', time: '11:00 AM', mode: 'In-Person', status: 'Scheduled', concern: 'Low attendance & falling grades', progress: 23, avatar: '👨' },
+            { student: 'Sneha Menon', parent: 'Mrs. Lata Menon', relation: 'Mother', date: 'Feb 25', time: '2:00 PM', mode: 'Video Call', status: 'Scheduled', concern: 'Performance in CN (20%)', progress: 20, avatar: '👩' },
+            { student: 'Rohan Desai', parent: 'Mr. Prakash Desai', relation: 'Father', date: 'Feb 21', time: '10:30 AM', mode: 'In-Person', status: 'Today', concern: 'Incomplete assignments', progress: 30, avatar: '👨' },
+            { student: 'Vikram Chawla', parent: 'Mrs. Sunita Chawla', relation: 'Mother', date: 'Feb 18', time: '3:00 PM', mode: 'Phone', status: 'Done', concern: 'Improvement plan discussed', progress: 33, avatar: '👩' },
         ];
         const statusColor = { Scheduled: '#6366f1', Today: '#f59e0b', Done: '#10b981' };
         return (
