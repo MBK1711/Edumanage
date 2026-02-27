@@ -10,6 +10,11 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.edumanage.backend.entity.Timetable;
+import com.edumanage.backend.entity.Attendance;
+import com.edumanage.backend.repository.TimetableRepository;
+import com.edumanage.backend.repository.AttendanceRepository;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -20,6 +25,8 @@ public class DataInitializer {
 
     private final RoleRepository roleRepository;
     private final DepartmentRepository departmentRepository;
+    private final TimetableRepository timetableRepository;
+    private final AttendanceRepository attendanceRepository;
 
     @Bean
     public CommandLineRunner initData() {
@@ -59,6 +66,27 @@ public class DataInitializer {
                     log.info("Seeded department: {}", dept.getName());
                 }
             });
+
+            // --- Seed Timetable ---
+            if (timetableRepository.count() == 0) {
+                List<Timetable> schedule = List.of(
+                        Timetable.builder().dayOfWeek("Monday").timeSlot("09:00 AM").subject("OS Lab").room("Lab 3")
+                                .sessionType("Lab").roleTarget("STUDENT").build(),
+                        Timetable.builder().dayOfWeek("Monday").timeSlot("11:00 AM").subject("Computer Networks")
+                                .room("Hall A").sessionType("Lecture").roleTarget("STUDENT").build(),
+                        Timetable.builder().dayOfWeek("Monday").timeSlot("11:00 AM").subject("Computer Networks")
+                                .room("Hall A").sessionType("Lecture").roleTarget("TEACHER").build(),
+                        Timetable.builder().dayOfWeek("Tuesday").timeSlot("10:00 AM").subject("Computer Networks")
+                                .room("LH 2").sessionType("Lecture").roleTarget("TEACHER").build(),
+                        Timetable.builder().dayOfWeek("Wednesday").timeSlot("09:00 AM").subject("Operating Systems")
+                                .room("LH 1").sessionType("Lecture").roleTarget("TEACHER").build(),
+                        Timetable.builder().dayOfWeek("Wednesday").timeSlot("11:00 AM").subject("CN Lab").room("Lab 5")
+                                .sessionType("Lab").roleTarget("STUDENT").build(),
+                        Timetable.builder().dayOfWeek("Thursday").timeSlot("10:00 AM").subject("Operating Systems")
+                                .room("Room 304").sessionType("Lecture").roleTarget("TEACHER").build());
+                timetableRepository.saveAll(schedule);
+                log.info("Seeded mock Timetable data");
+            }
         };
     }
 }

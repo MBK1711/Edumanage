@@ -60,4 +60,19 @@ export const classAPI = {
   deleteDepartment: (deptId) => api.delete(`/departments/${deptId}`)
 };
 
+// ===== TIMETABLE API =====
+export const timetableAPI = {
+  getSchedule: (role) => api.get(`/timetable/${role}`), // "STUDENT" or "TEACHER"
+  addSession: (data) => api.post('/timetable/add', data),
+  deleteSession: (id) => api.delete(`/timetable/${id}`)
+};
+
+// ===== ATTENDANCE API =====
+export const attendanceAPI = {
+  markAttendance: (data) => api.post('/attendance/record', data),
+  getDailyAttendance: (courseId, date) => api.get(`/attendance/course/${courseId}/date/${date}`),
+  getCourseAttendance: (courseId) => api.get(`/attendance/course/${courseId}`),
+  getStudentAttendance: (studentId) => api.get(`/attendance/student/${studentId}`)
+};
+
 export default api;

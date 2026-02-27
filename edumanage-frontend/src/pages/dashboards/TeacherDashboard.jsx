@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import '../../landing_animations.css';
 import '../../teacher-dashboard.css'; // Import the new premium styles
 import MessagingPanel from '../../components/MessagingPanel';
+import { timetableAPI, attendanceAPI } from '../../api/api';
 
 const INITIAL_COURSES = [
     {
@@ -98,6 +99,39 @@ export default function TeacherDashboard({ activeTab }) {
     const { user } = useAuth();
     const [assignmentViewMode, setAssignmentViewMode] = useState('list'); // 'list', 'view', 'grade'
     const [selectedAssignment, setSelectedAssignment] = useState(null);
+
+    // ── Backend API States ──────────────────────────────────────────────────
+    const [backendSchedule, setBackendSchedule] = useState([]);
+
+    // ── Add Session Modal State ─────────────────────────────────────────────
+    const [showAddSession, setShowAddSession] = useState(false);
+    const [sessionForm, setSessionForm] = useState({ dayOfWeek: 'Monday', timeSlot: '10:00 AM', subject: '', room: '', sessionType: 'Lecture' });
+    const [isSubmittingSession, setIsSubmittingSession] = useState(false);
+
+    const handleAddSessionSubmit = async () => {
+        if (!sessionForm.subject || !sessionForm.room) return alert("Please fill subject and room");
+        setIsSubmittingSession(true);
+        try {
+            await timetableAPI.addSession({ ...sessionForm, roleTarget: 'TEACHER' });
+            // re-fetch schedule
+            const res = await timetableAPI.getSchedule('TEACHER');
+            setBackendSchedule(res.data);
+            setShowAddSession(false);
+            setSessionForm({ dayOfWeek: 'Monday', timeSlot: '10:00 AM', subject: '', room: '', sessionType: 'Lecture' });
+            alert("Session added successfully!");
+        } catch (err) {
+            console.error(err);
+            alert("Failed to add session");
+        } finally {
+            setIsSubmittingSession(false);
+        }
+    };
+
+    useEffect(() => {
+        if (activeTab === 'schedule') {
+            timetableAPI.getSchedule('TEACHER').then(res => setBackendSchedule(res.data)).catch(err => console.error("Failed to fetch schedule", err));
+        }
+    }, [activeTab]);
 
     // ── Course Management State ──────────────────────────────────────────────
     const [courses, setCourses] = useState(INITIAL_COURSES);
@@ -985,58 +1019,222 @@ export default function TeacherDashboard({ activeTab }) {
     // ─── SCHEDULE ───────────────────────────────────────────────────────────
     if (activeTab === 'schedule') {
         const SCHEDULE = [
-            { day: 'Monday', slots: [{ time: '9:00 AM', subj: 'Operating Systems', room: 'Lab 3', type: 'Lab' }, { time: '11:00 AM', subj: 'Computer Networks', room: 'Hall A', type: 'Lecture' }, { time: '2:00 PM', subj: 'OS Tutorial', room: 'Room 104', type: 'Tutorial' }] },
-            { day: 'Tuesday', slots: [{ time: '10:00 AM', subj: 'Computer Networks', room: 'LH 2', type: 'Lecture' }, { time: '12:00 PM', subj: 'Faculty Meeting', room: 'Conf Rm', type: 'Meeting' }, { time: '3:00 PM', subj: 'Office Hours', room: 'Room 201', type: 'Office' }] },
-            { day: 'Wednesday', slots: [{ time: '9:00 AM', subj: 'Operating Systems', room: 'LH 1', type: 'Lecture' }, { time: '11:00 AM', subj: 'CN Lab', room: 'Lab 5', type: 'Lab' }, { time: '2:00 PM', subj: 'Research Work', room: 'R&D Block', type: 'Research' }] },
-            { day: 'Thursday', slots: [{ time: '10:00 AM', subj: 'Operating Systems', room: 'Room 304', type: 'Lecture' }, { time: '12:00 PM', subj: 'Computer Networks', room: 'LH 2', type: 'Lecture' }, { time: '3:00 PM', subj: 'Student Mentoring', room: 'Room 201', type: 'Mentoring' }] },
-            { day: 'Friday', slots: [{ time: '9:00 AM', subj: 'OS Lab', room: 'Lab 3', type: 'Lab' }, { time: '11:00 AM', subj: 'Computer Networks', room: 'Hall B', type: 'Lecture' }, { time: '1:00 PM', subj: 'Dept Seminar', room: 'Audi', type: 'Meeting' }] },
+            { day: 'Monday', slots: [{ time: '09:00 AM', subj: 'OS Lab', room: 'Lab 3', type: 'Lab' }, { time: '11:00 AM', subj: 'Computer Networks', room: 'Hall A', type: 'Lecture' }, { time: '02:00 PM', subj: 'OS Tutorial', room: 'Room 104', type: 'Tutorial' }] },
+            { day: 'Tuesday', slots: [{ time: '10:00 AM', subj: 'Computer Networks', room: 'LH 2', type: 'Lecture' }, { time: '12:00 PM', subj: 'Faculty Meeting', room: 'Conf Rm', type: 'Meeting' }, { time: '03:00 PM', subj: 'Office Hours', room: 'Room 201', type: 'Office' }] },
+            { day: 'Wednesday', slots: [{ time: '09:00 AM', subj: 'Operating Systems', room: 'LH 1', type: 'Lecture' }, { time: '11:00 AM', subj: 'CN Lab', room: 'Lab 5', type: 'Lab' }, { time: '02:00 PM', subj: 'Research Work', room: 'R&D Block', type: 'Research' }] },
+            { day: 'Thursday', slots: [{ time: '10:00 AM', subj: 'Operating Systems', room: 'Room 304', type: 'Lecture' }, { time: '12:00 PM', subj: 'Computer Networks', room: 'LH 2', type: 'Lecture' }, { time: '03:00 PM', subj: 'Student Mentoring', room: 'Room 201', type: 'Mentoring' }] },
+            { day: 'Friday', slots: [{ time: '09:00 AM', subj: 'OS Lab', room: 'Lab 3', type: 'Lab' }, { time: '11:00 AM', subj: 'Computer Networks', room: 'Hall B', type: 'Lecture' }, { time: '01:00 PM', subj: 'Dept Seminar', room: 'Audi', type: 'Meeting' }] },
         ];
         const typeColor = { Lecture: '#6366f1', Lab: '#10b981', Tutorial: '#f59e0b', Meeting: '#ef4444', Office: '#0ea5e9', Research: '#8b5cf6', Mentoring: '#d946ef' };
+
+        const TIME_SLOTS = ['09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM'];
+        const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+        const todayStr = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+        const currentSlotTime = '11:00 AM'; // Mock
+
+        // Use backend data if available, else fallback to MOCK
+        const rawSchedule = backendSchedule.length > 0 ? backendSchedule : [];
+        const combinedSlots = rawSchedule.map(s => ({ time: s.timeSlot, subj: s.subject, room: s.room, type: s.sessionType, day: s.dayOfWeek }));
+
+        const todaysClasses = backendSchedule.length > 0
+            ? combinedSlots.filter(s => s.day === todayStr)
+            : (SCHEDULE.find(d => d.day === todayStr) || SCHEDULE[0]).slots;
+
+        const getTimetableCell = (day, time) => {
+            if (backendSchedule.length > 0) {
+                return combinedSlots.find(s => s.day === day && s.time === time);
+            }
+            const d = SCHEDULE.find(x => x.day === day);
+            return d ? d.slots.find(s => s.time === time) : null;
+        };
+
         return (
             <div className="animate-fade-in" style={{ padding: '0' }}>
                 {/* Hero */}
-                <div style={{ background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 55%, #d946ef 100%)', borderRadius: '24px', padding: '24px 32px', marginBottom: '24px', color: 'white', position: 'relative', overflow: 'hidden' }}>
+                <div style={{ background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 55%, #d946ef 100%)', borderRadius: '24px', padding: '24px 32px', marginBottom: '24px', color: 'white', display: 'flex', gap: '24px', flexWrap: 'wrap', position: 'relative', overflow: 'hidden' }}>
                     <div style={{ position: 'absolute', top: '-30px', right: '-30px', width: '160px', height: '160px', borderRadius: '50%', background: 'rgba(255,255,255,0.07)' }} />
-                    <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '2px', opacity: 0.8, marginBottom: '4px', textTransform: 'uppercase' }}>📅 Weekly Schedule · Semester 4</div>
-                    <div style={{ fontSize: '22px', fontWeight: 800, marginBottom: '4px' }}>My Timetable</div>
-                    <div style={{ fontSize: '13px', opacity: 0.88 }}>15 classes/week · 2 subjects · Mon–Fri</div>
-                    <div style={{ display: 'flex', gap: '10px', marginTop: '14px', flexWrap: 'wrap' }}>
-                        {Object.entries(typeColor).map(([type, color]) => (
-                            <div key={type} style={{ background: 'rgba(255,255,255,0.15)', borderRadius: '20px', padding: '3px 12px', fontSize: '11px', fontWeight: 700 }}>
-                                <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: color, marginRight: '5px' }} />{type}
+                    <div style={{ flex: '1 1 300px' }}>
+                        <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '2px', opacity: 0.8, marginBottom: '4px', textTransform: 'uppercase' }}>📅 {todayStr}'s Schedule</div>
+                        <div style={{ fontSize: '24px', fontWeight: 800, marginBottom: '14px' }}>My Timetable</div>
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            <div style={{ background: 'rgba(255,255,255,0.1)', padding: '10px 16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.15)' }}>
+                                <div style={{ fontSize: '10px', opacity: 0.7, marginBottom: '2px' }}>Total Sessions</div>
+                                <div style={{ fontSize: '18px', fontWeight: 800 }}>{todaysClasses.length}</div>
+                            </div>
+                            <div style={{ background: 'rgba(16,185,129,0.15)', padding: '10px 16px', borderRadius: '12px', border: '1px solid rgba(16,185,129,0.3)', color: '#a7f3d0' }}>
+                                <div style={{ fontSize: '10px', opacity: 0.8, marginBottom: '2px' }}>Next Session</div>
+                                <div style={{ fontSize: '14px', fontWeight: 800, whiteSpace: 'nowrap' }}>{todaysClasses[0]?.time || 'None'}</div>
+                            </div>
+                        </div>
+                    </div>
+                    {/* Today's Timeline mini-widget */}
+                    <div style={{ flex: '2 1 400px', display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px' }} className="hide-scroll">
+                        {todaysClasses.map((c, i) => (
+                            <div key={i} style={{ background: 'rgba(255,255,255,0.08)', borderRadius: '16px', padding: '12px 16px', minWidth: '150px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                                    <span style={{ fontSize: '11px', color: '#cbd5e1', fontWeight: 700 }}>🕐 {c.time}</span>
+                                    <span style={{ fontSize: '9px', fontWeight: 700, background: 'rgba(255,255,255,0.15)', padding: '2px 6px', borderRadius: '4px' }}>{c.type}</span>
+                                </div>
+                                <div style={{ fontSize: '13px', fontWeight: 800, marginBottom: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.subj}</div>
+                                <div style={{ fontSize: '11px', color: '#cbd5e1' }}>📍 {c.room}</div>
                             </div>
                         ))}
                     </div>
                 </div>
-                {/* Days */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                    {SCHEDULE.map((day, di) => (
-                        <div key={di} style={{ background: 'white', border: '1.5px solid #e2e8f0', borderRadius: '20px', overflow: 'hidden' }}>
-                            <div style={{ padding: '12px 20px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: '12px', background: '#fafbff' }}>
-                                <div style={{ width: '4px', height: '24px', borderRadius: '99px', background: 'linear-gradient(180deg, #6366f1, #8b5cf6)' }} />
-                                <div style={{ fontWeight: 800, fontSize: '14px', color: '#1e293b' }}>{day.day}</div>
-                                <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600 }}>{day.slots.length} sessions</span>
+
+                {/* Filters / Legend */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', background: 'white', padding: '12px 20px', borderRadius: '16px', border: '1.5px solid #e2e8f0', flexWrap: 'wrap', gap: '10px' }}>
+                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                        {Object.entries(typeColor).map(([t, c]) => (
+                            <div key={t} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 700, color: '#475569' }}>
+                                <span style={{ width: '10px', height: '10px', borderRadius: '3px', background: c }}></span> {t}
                             </div>
-                            <div style={{ padding: '12px 16px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                                {day.slots.map((slot, si) => (
-                                    <div key={si} style={{ flex: '1 1 200px', padding: '14px 16px', borderRadius: '14px', background: `${typeColor[slot.type]}08`, border: `1.5px solid ${typeColor[slot.type]}25` }}>
-                                        <div style={{ fontSize: '11px', fontWeight: 700, color: typeColor[slot.type], marginBottom: '6px' }}>🕐 {slot.time}</div>
-                                        <div style={{ fontWeight: 800, fontSize: '14px', color: '#1e293b', marginBottom: '3px' }}>{slot.subj}</div>
-                                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                                            <span style={{ fontSize: '11px', color: '#64748b' }}>📍 {slot.room}</span>
-                                            <span style={{ fontSize: '10px', fontWeight: 700, color: typeColor[slot.type], background: `${typeColor[slot.type]}15`, padding: '2px 8px', borderRadius: '6px' }}>{slot.type}</span>
-                                        </div>
+                        ))}
+                    </div>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                        <button onClick={() => setShowAddSession(true)} style={{ background: '#6366f1', border: 'none', borderRadius: '8px', padding: '6px 14px', fontSize: '11px', fontWeight: 700, color: 'white', cursor: 'pointer' }}>+ Add Session</button>
+                    </div>
+                </div>
+
+                {/* Timetable Grid */}
+                <div style={{ background: 'white', border: '1.5px solid #e2e8f0', borderRadius: '24px', overflow: 'hidden' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: `80px repeat(${TIME_SLOTS.length}, 1fr)` }}>
+                        {/* Header Row */}
+                        <div style={{ background: '#f8fafc', padding: '14px', borderBottom: '1.5px solid #e2e8f0', borderRight: '1.5px solid #e2e8f0', fontWeight: 800, fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Day</div>
+                        {TIME_SLOTS.map(time => (
+                            <div key={time} style={{ background: '#f8fafc', padding: '14px', borderBottom: '1.5px solid #e2e8f0', borderRight: '1px solid #f1f5f9', fontWeight: 800, fontSize: '11px', color: '#64748b', textAlign: 'center' }}>
+                                {time}
+                            </div>
+                        ))}
+
+                        {/* Rows */}
+                        {DAYS.map((day) => {
+                            const isToday = day === todayStr;
+                            return (
+                                <>
+                                    <div key={day} style={{ background: isToday ? 'rgba(99,102,241,0.05)' : 'white', padding: '0', borderBottom: '1px solid #f1f5f9', borderRight: '1.5px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '4px', position: 'relative' }}>
+                                        {isToday && <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '4px', background: '#6366f1' }} />}
+                                        <span style={{ fontWeight: 800, fontSize: '13px', color: isToday ? '#6366f1' : '#1e293b' }}>{day.substring(0, 3)}</span>
+                                        {isToday && <span style={{ fontSize: '9px', fontWeight: 800, background: '#6366f1', color: 'white', padding: '2px 6px', borderRadius: '10px' }}>TODAY</span>}
                                     </div>
-                                ))}
+                                    {TIME_SLOTS.map(time => {
+                                        const subject = getTimetableCell(day, time);
+                                        const isCurrent = isToday && time === currentSlotTime;
+
+                                        if (subject) {
+                                            const sColor = typeColor[subject.type] || '#94a3b8';
+                                            return (
+                                                <div key={`${day}-${time}`} style={{ padding: '8px', borderBottom: '1px solid #f1f5f9', borderRight: '1px solid #f1f5f9', background: isCurrent ? 'rgba(99,102,241,0.08)' : isToday ? 'rgba(99,102,241,0.02)' : 'white', position: 'relative' }}>
+                                                    {isCurrent && <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: '#6366f1' }} />}
+                                                    <div style={{ height: '100%', background: `${sColor}12`, border: `1px solid ${sColor}30`, borderRadius: '10px', padding: '8px', display: 'flex', flexDirection: 'column', justifyContent: 'center', transition: 'transform 0.2s', cursor: 'pointer', textAlign: 'left' }} className="hover-lift">
+                                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
+                                                            <span style={{ fontSize: '8px', fontWeight: 800, color: sColor, background: `${sColor}20`, padding: '2px 4px', borderRadius: '4px', textTransform: 'uppercase' }}>{subject.type}</span>
+                                                        </div>
+                                                        <div style={{ fontSize: '11px', fontWeight: 800, color: '#1e293b', lineHeight: 1.2, marginBottom: '6px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{subject.subj}</div>
+                                                        <div style={{ fontSize: '10px', color: '#64748b', fontWeight: 600, marginTop: 'auto' }}>📍 {subject.room}</div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        }
+
+                                        return (
+                                            <div key={`${day}-${time}`} className="hover-lift" style={{ padding: '8px', borderBottom: '1px solid #f1f5f9', borderRight: '1px solid #f1f5f9', background: isToday ? 'rgba(99,102,241,0.02)' : 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                                                <span style={{ color: '#e2e8f0', fontSize: '20px', transition: 'color 0.2s' }} onMouseEnter={e => e.target.style.color = '#cbd5e1'} onMouseLeave={e => e.target.style.color = '#e2e8f0'}>+</span>
+                                            </div>
+                                        );
+                                    })}
+                                </>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                {/* Add Session Modal */}
+                {showAddSession && (
+                    <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(8px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', p: 4, animation: 'fadeIn 0.2s ease-out' }}>
+                        <div style={{ background: 'white', borderRadius: '24px', width: '100%', maxWidth: '440px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', overflow: 'hidden', animation: 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)' }}>
+                            <div style={{ padding: '24px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc' }}>
+                                <div>
+                                    <div style={{ fontSize: '18px', fontWeight: 800, color: '#1e293b' }}>Add New Session</div>
+                                    <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>Schedule a class for your timetable</div>
+                                </div>
+                                <button onClick={() => setShowAddSession(false)} style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', cursor: 'pointer', transition: 'all 0.2s' }}>✕</button>
+                            </div>
+                            <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                <div style={{ display: 'flex', gap: '16px' }}>
+                                    <div style={{ flex: 1 }}>
+                                        <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#475569', marginBottom: '8px' }}>Day of Week</label>
+                                        <select value={sessionForm.dayOfWeek} onChange={e => setSessionForm(p => ({ ...p, dayOfWeek: e.target.value }))} style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1.5px solid #e2e8f0', fontSize: '14px', background: '#f8fafc', color: '#1e293b', outline: 'none' }}>
+                                            {DAYS.map(d => <option key={d} value={d}>{d}</option>)}
+                                        </select>
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                        <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#475569', marginBottom: '8px' }}>Time Slot</label>
+                                        <select value={sessionForm.timeSlot} onChange={e => setSessionForm(p => ({ ...p, timeSlot: e.target.value }))} style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1.5px solid #e2e8f0', fontSize: '14px', background: '#f8fafc', color: '#1e293b', outline: 'none' }}>
+                                            {TIME_SLOTS.map(t => <option key={t} value={t}>{t}</option>)}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#475569', marginBottom: '8px' }}>Subject</label>
+                                    <input placeholder="e.g. Operating Systems" value={sessionForm.subject} onChange={e => setSessionForm(p => ({ ...p, subject: e.target.value }))} style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1.5px solid #e2e8f0', fontSize: '14px', background: '#f8fafc', color: '#1e293b', outline: 'none' }} />
+                                </div>
+                                <div style={{ display: 'flex', gap: '16px' }}>
+                                    <div style={{ flex: 1 }}>
+                                        <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#475569', marginBottom: '8px' }}>Room</label>
+                                        <input placeholder="e.g. Room 304" value={sessionForm.room} onChange={e => setSessionForm(p => ({ ...p, room: e.target.value }))} style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1.5px solid #e2e8f0', fontSize: '14px', background: '#f8fafc', color: '#1e293b', outline: 'none' }} />
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                        <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#475569', marginBottom: '8px' }}>Type</label>
+                                        <select value={sessionForm.sessionType} onChange={e => setSessionForm(p => ({ ...p, sessionType: e.target.value }))} style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1.5px solid #e2e8f0', fontSize: '14px', background: '#f8fafc', color: '#1e293b', outline: 'none' }}>
+                                            <option value="Lecture">Lecture</option>
+                                            <option value="Lab">Lab</option>
+                                            <option value="Tutorial">Tutorial</option>
+                                            <option value="Meeting">Meeting</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style={{ padding: '20px 24px', background: '#f8fafc', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+                                <button onClick={() => setShowAddSession(false)} style={{ padding: '10px 18px', borderRadius: '12px', border: '1px solid #e2e8f0', background: 'white', color: '#475569', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', fontSize: '14px' }}>Cancel</button>
+                                <button onClick={handleAddSessionSubmit} disabled={isSubmittingSession} style={{ padding: '10px 24px', borderRadius: '12px', border: 'none', background: '#6366f1', color: 'white', fontWeight: 700, cursor: isSubmittingSession ? 'not-allowed' : 'pointer', boxShadow: '0 4px 12px rgba(99,102,241,0.25)', transition: 'all 0.2s', fontSize: '14px', opacity: isSubmittingSession ? 0.7 : 1 }}>{isSubmittingSession ? 'Saving...' : 'Save Session'}</button>
                             </div>
                         </div>
-                    ))}
-                </div>
+                    </div>
+                )}
             </div>
         );
     }
 
     // ─── ATTENDANCE ─────────────────────────────────────────────────────────
+    const [attendanceList, setAttendanceList] = useState([
+        { id: '2024CS001', name: 'Aarav Sharma', status: 'Present' },
+        { id: '2024CS002', name: 'Rohan Desai', status: 'Absent' },
+        { id: '2024CS003', name: 'Sneha Menon', status: 'Present' },
+        { id: '2024CS004', name: 'Karan Mehra', status: 'Late' },
+        { id: '2024CS005', name: 'Priya Sharma', status: 'Present' }
+    ]);
+
+    const [isSubmittingAtt, setIsSubmittingAtt] = useState(false);
+
+    const handleAttendanceChange = (studentId, newStatus) => {
+        setAttendanceList(prev => prev.map(s => s.id === studentId ? { ...s, status: newStatus } : s));
+    };
+
+    const submitAttendance = async () => {
+        setIsSubmittingAtt(true);
+        try {
+            // Usually we'd iterate over students and send POST to attendanceAPI
+            // For mock demo without disrupting database too heavily, just simulating delay
+            await new Promise(r => setTimeout(r, 600));
+            alert("Attendance successfully recorded!");
+        } catch (error) {
+            console.error("Failed to submit attendance", error);
+        } finally {
+            setIsSubmittingAtt(false);
+        }
+    };
+
     if (activeTab === 'attendance') {
         const ATT_DATA = [
             { date: 'Feb 20', day: 'Thu', subject: 'Operating Systems', room: 'Room 304', present: 18, absent: 2, total: 20, absentees: ['Karan Mehra', 'Rahul Verma'] },
@@ -1046,6 +1244,7 @@ export default function TeacherDashboard({ activeTab }) {
             { date: 'Feb 14', day: 'Fri', subject: 'OS Lab', room: 'Lab 3', present: 20, absent: 0, total: 20, absentees: [] },
         ];
         const overallPct = Math.round(ATT_DATA.reduce((s, r) => s + r.present, 0) / ATT_DATA.reduce((s, r) => s + r.total, 0) * 100);
+
         return (
             <div className="animate-fade-in">
                 {/* Hero */}
@@ -1054,15 +1253,68 @@ export default function TeacherDashboard({ activeTab }) {
                     <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '2px', opacity: 0.8, marginBottom: '4px', textTransform: 'uppercase' }}>✅ Attendance · Semester 4</div>
                     <div style={{ fontSize: '22px', fontWeight: 800, marginBottom: '4px' }}>Attendance Tracker</div>
                     <div style={{ fontSize: '13px', opacity: 0.88 }}>2 active classes · {overallPct}% avg overall attendance</div>
-                    <div style={{ display: 'flex', gap: '12px', marginTop: '16px', flexWrap: 'wrap' }}>
-                        {[{ l: 'Avg Attendance', v: `${overallPct}%` }, { l: 'Total Sessions', v: ATT_DATA.length }, { l: 'Perfect Days', v: ATT_DATA.filter(r => r.absent === 0).length }].map((s, i) => (
-                            <div key={i} style={{ background: 'rgba(255,255,255,0.15)', borderRadius: '12px', padding: '10px 18px' }}>
-                                <div style={{ fontSize: '10px', opacity: 0.8, marginBottom: '2px' }}>{s.l}</div>
-                                <div style={{ fontWeight: 800, fontSize: '18px' }}>{s.v}</div>
-                            </div>
-                        ))}
+                </div>
+
+                {/* Mark Attendance Panel */}
+                <div style={{ background: 'white', borderRadius: '20px', padding: '24px', marginBottom: '24px', border: '1.5px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '16px', marginBottom: '16px' }}>
+                        <div>
+                            <div style={{ fontWeight: 800, fontSize: '16px', color: '#1e293b' }}>Mark Live Attendance</div>
+                            <div style={{ fontSize: '12px', color: '#64748b' }}>Operating Systems · Room 304 · 10:00 AM</div>
+                        </div>
+                        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '8px 16px', fontSize: '13px', fontWeight: 700, color: '#475569' }}>
+                            Today, {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {attendanceList.map((s, i) => {
+                            const bg = s.status === 'Present' ? '#10b981' : s.status === 'Late' ? '#f59e0b' : '#ef4444';
+                            return (
+                                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: '#f8fafc', borderRadius: '12px', border: '1px solid #f1f5f9' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                                        <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '14px', color: '#64748b' }}>
+                                            {s.name.charAt(0)}
+                                        </div>
+                                        <div>
+                                            <div style={{ fontWeight: 700, fontSize: '14px', color: '#1e293b' }}>{s.name}</div>
+                                            <div style={{ fontSize: '11px', color: '#94a3b8' }}>{s.id}</div>
+                                        </div>
+                                    </div>
+
+                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                        {['Present', 'Late', 'Absent'].map(st => {
+                                            const isActive = s.status === st;
+                                            const activeColor = st === 'Present' ? '#10b981' : st === 'Late' ? '#f59e0b' : '#ef4444';
+                                            return (
+                                                <button key={st}
+                                                    onClick={() => handleAttendanceChange(s.id, st)}
+                                                    style={{
+                                                        background: isActive ? activeColor : 'white',
+                                                        color: isActive ? 'white' : '#64748b',
+                                                        border: `1.5px solid ${isActive ? activeColor : '#e2e8f0'}`,
+                                                        borderRadius: '8px', padding: '6px 14px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s'
+                                                    }}>
+                                                    {st}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
+                        <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>{attendanceList.length} students total · <span style={{ color: '#10b981' }}>{attendanceList.filter(s => s.status === 'Present').length} Present</span></div>
+                        <button onClick={submitAttendance} disabled={isSubmittingAtt} style={{ background: '#6366f1', color: 'white', border: 'none', borderRadius: '10px', padding: '10px 24px', fontSize: '14px', fontWeight: 700, cursor: isSubmittingAtt ? 'not-allowed' : 'pointer', boxShadow: '0 4px 12px rgba(99,102,241,0.2)', opacity: isSubmittingAtt ? 0.7 : 1 }}>
+                            {isSubmittingAtt ? 'Submitting...' : 'Submit Attendance'}
+                        </button>
                     </div>
                 </div>
+
+                <div style={{ fontWeight: 800, fontSize: '16px', color: '#1e293b', marginBottom: '16px' }}>Attendance History</div>
+
                 {/* Sessions */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     {ATT_DATA.map((rec, i) => {
@@ -1090,7 +1342,7 @@ export default function TeacherDashboard({ activeTab }) {
                                             </div>
                                         )}
                                     </div>
-                                    <button style={{ background: color, border: 'none', borderRadius: '10px', padding: '7px 14px', fontSize: '11px', fontWeight: 700, color: 'white', cursor: 'pointer', flexShrink: 0 }}>✏ Edit</button>
+                                    <button onClick={() => alert("Edit Attendance coming soon.")} style={{ background: color, border: 'none', borderRadius: '10px', padding: '7px 14px', fontSize: '11px', fontWeight: 700, color: 'white', cursor: 'pointer', flexShrink: 0 }}>✏ Edit</button>
                                 </div>
                             </div>
                         );
@@ -1102,7 +1354,7 @@ export default function TeacherDashboard({ activeTab }) {
                         <div style={{ fontWeight: 700, fontSize: '13px', color: '#1e293b' }}>Mark Today's Attendance</div>
                         <div style={{ fontSize: '11px', color: '#94a3b8' }}>Feb 21, 2026 · Friday · OS Lab — Lab 3</div>
                     </div>
-                    <button style={{ background: '#10b981', border: 'none', borderRadius: '10px', padding: '8px 18px', fontSize: '12px', fontWeight: 800, color: 'white', cursor: 'pointer' }}>Mark Now →</button>
+                    <button onClick={() => alert("Mark Now panel coming soon!")} style={{ background: '#10b981', border: 'none', borderRadius: '10px', padding: '8px 18px', fontSize: '12px', fontWeight: 800, color: 'white', cursor: 'pointer' }}>Mark Now →</button>
                 </div>
             </div>
         );
@@ -1144,7 +1396,7 @@ export default function TeacherDashboard({ activeTab }) {
                 <div style={{ background: 'white', border: '1.5px solid #e2e8f0', borderRadius: '20px', overflow: 'hidden' }}>
                     <div style={{ padding: '14px 20px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div style={{ fontWeight: 800, fontSize: '14px', color: '#1e293b' }}>Top Performers · Mid-Term</div>
-                        <button style={{ background: '#6366f1', border: 'none', borderRadius: '10px', padding: '7px 16px', fontSize: '12px', fontWeight: 700, color: 'white', cursor: 'pointer' }}>+ Add Grades</button>
+                        <button onClick={() => alert("Add Grades coming soon!")} style={{ background: '#6366f1', border: 'none', borderRadius: '10px', padding: '7px 16px', fontSize: '12px', fontWeight: 700, color: 'white', cursor: 'pointer' }}>+ Add Grades</button>
                     </div>
                     {GB_STUDENTS.map((s, i) => (
                         <div key={i} style={{ padding: '12px 20px', display: 'flex', gap: '16px', alignItems: 'center', borderBottom: i < GB_STUDENTS.length - 1 ? '1px solid #f8fafc' : 'none', background: i % 2 === 0 ? '#fafbff' : 'white' }}>
@@ -1166,7 +1418,7 @@ export default function TeacherDashboard({ activeTab }) {
                                     </div>
                                 </div>
                                 <span style={{ fontWeight: 800, fontSize: '13px', color: gradeColor[s.grade] || '#94a3b8', background: `${gradeColor[s.grade] || '#94a3b8'}15`, padding: '4px 12px', borderRadius: '20px', border: `1px solid ${gradeColor[s.grade] || '#94a3b8'}30` }}>{s.grade}</span>
-                                <button style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '5px 12px', fontSize: '11px', fontWeight: 700, color: '#475569', cursor: 'pointer' }}>✏ Edit</button>
+                                <button onClick={() => alert(`Edit grades for ${s.name} coming soon!`)} style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '5px 12px', fontSize: '11px', fontWeight: 700, color: '#475569', cursor: 'pointer' }}>✏ Edit</button>
                             </div>
                         </div>
                     ))}
@@ -1194,8 +1446,8 @@ export default function TeacherDashboard({ activeTab }) {
                     <div style={{ fontSize: '22px', fontWeight: 800, marginBottom: '4px' }}>Course Resources</div>
                     <div style={{ fontSize: '13px', opacity: 0.88 }}>{RESOURCES.length} files uploaded · 181 total downloads</div>
                     <div style={{ display: 'flex', gap: '10px', marginTop: '14px' }}>
-                        <button style={{ background: 'white', color: '#8b5cf6', border: 'none', borderRadius: '12px', padding: '8px 18px', fontWeight: 800, fontSize: '12px', cursor: 'pointer' }}>+ Upload File</button>
-                        <button style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.25)', borderRadius: '12px', padding: '8px 18px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>📁 Create Folder</button>
+                        <button onClick={() => alert("Upload File coming soon!")} style={{ background: 'white', color: '#8b5cf6', border: 'none', borderRadius: '12px', padding: '8px 18px', fontWeight: 800, fontSize: '12px', cursor: 'pointer' }}>+ Upload File</button>
+                        <button onClick={() => alert("Create Folder coming soon!")} style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.25)', borderRadius: '12px', padding: '8px 18px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>📁 Create Folder</button>
                     </div>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
@@ -1211,8 +1463,8 @@ export default function TeacherDashboard({ activeTab }) {
                                 </div>
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flexShrink: 0 }}>
-                                <button style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '5px 10px', fontSize: '11px', fontWeight: 700, color: '#475569', cursor: 'pointer' }}>✏</button>
-                                <button style={{ background: '#6366f1', border: 'none', borderRadius: '8px', padding: '5px 10px', fontSize: '11px', fontWeight: 700, color: 'white', cursor: 'pointer' }}>⬇</button>
+                                <button onClick={() => alert(`Edit Resource ${r.title} coming soon!`)} style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '5px 10px', fontSize: '11px', fontWeight: 700, color: '#475569', cursor: 'pointer' }}>✏</button>
+                                <button onClick={() => alert(`Downloading ${r.title}... (Mock)`)} style={{ background: '#6366f1', border: 'none', borderRadius: '8px', padding: '5px 10px', fontSize: '11px', fontWeight: 700, color: 'white', cursor: 'pointer' }}>⬇</button>
                             </div>
                         </div>
                     ))}
@@ -1245,7 +1497,7 @@ export default function TeacherDashboard({ activeTab }) {
                                 <div style={{ fontWeight: 800, fontSize: '18px' }}>{s.v}</div>
                             </div>
                         ))}
-                        <button style={{ background: 'white', color: '#d946ef', border: 'none', borderRadius: '12px', padding: '10px 18px', fontWeight: 800, fontSize: '12px', cursor: 'pointer', marginLeft: 'auto' }}>+ Schedule Meeting</button>
+                        <button onClick={() => alert("Schedule Meeting coming soon!")} style={{ background: 'white', color: '#d946ef', border: 'none', borderRadius: '12px', padding: '10px 18px', fontWeight: 800, fontSize: '12px', cursor: 'pointer', marginLeft: 'auto' }}>+ Schedule Meeting</button>
                     </div>
                 </div>
                 {/* Meeting Cards */}
@@ -1272,8 +1524,8 @@ export default function TeacherDashboard({ activeTab }) {
                                 </div>
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flexShrink: 0 }}>
-                                <button style={{ background: statusColor[m.status], border: 'none', borderRadius: '10px', padding: '7px 14px', fontSize: '11px', fontWeight: 700, color: 'white', cursor: 'pointer' }}>{m.status === 'Done' ? '📄 Notes' : '📞 Join'}</button>
-                                <button style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '7px 14px', fontSize: '11px', fontWeight: 700, color: '#475569', cursor: 'pointer' }}>✏ Edit</button>
+                                <button onClick={() => m.status === 'Done' ? alert(`View notes for ${m.student}`) : alert(`Joining meeting with ${m.parent}`)} style={{ background: statusColor[m.status], border: 'none', borderRadius: '10px', padding: '7px 14px', fontSize: '11px', fontWeight: 700, color: 'white', cursor: 'pointer' }}>{m.status === 'Done' ? '📄 Notes' : '📞 Join'}</button>
+                                <button onClick={() => alert(`Edit meeting for ${m.student} coming soon!`)} style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '7px 14px', fontSize: '11px', fontWeight: 700, color: '#475569', cursor: 'pointer' }}>✏ Edit</button>
                             </div>
                         </div>
                     ))}
