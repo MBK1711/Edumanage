@@ -1500,10 +1500,12 @@ export default function StudentDashboard({ activeTab }) {
 
 
     if (activeTab === 'attendance') {
+        const safeBackendAttendance = Array.isArray(backendAttendance) ? backendAttendance : [];
+
         // Map backend attendance to existing mock format, or fallback
-        const myAttendance = backendAttendance.length > 0 ? backendAttendance.map(att => ({
-            subject: att.course?.title || `Course ${att.courseId}`,
-            code: att.course?.code || `C-${att.courseId}`,
+        const myAttendance = safeBackendAttendance.length > 0 ? safeBackendAttendance.map(att => ({
+            subject: att.course?.title || att.courseName || `Course ${att.courseId || 'Unknown'}`,
+            code: att.course?.code || att.courseCode || `C-${att.courseId || 'UNK'}`,
             present: att.status === 'PRESENT' ? 1 : 0, // This is simplified, ideally backend groups this
             total: 1,
             icon: '💻', color: '#6366f1'
@@ -1523,7 +1525,7 @@ export default function StudentDashboard({ activeTab }) {
             acc[curr.subject].present += curr.present;
             acc[curr.subject].total += curr.total;
             // Overwrite total to be realistic if we only have a few records
-            if (acc[curr.subject].total < 10 && backendAttendance.length > 0 && curr.total === 1) {
+            if (acc[curr.subject].total < 10 && safeBackendAttendance.length > 0 && curr.total === 1) {
                 acc[curr.subject].total = 30; // mock total classes
                 acc[curr.subject].present += 20; // mock baseline
             }
