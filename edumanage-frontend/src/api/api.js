@@ -1,7 +1,8 @@
 import axios from 'axios';
 
-const API_BASE_URL = '/api';
-
+// For Vite, environment variables are prefixed with VITE_ and accessed via import.meta.env
+// If no environment variable is provided, we fall back to the relative path '/api' which works with our Vite proxy
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
