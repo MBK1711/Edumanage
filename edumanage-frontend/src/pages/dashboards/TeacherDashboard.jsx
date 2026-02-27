@@ -2,10 +2,44 @@ import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import '../../landing_animations.css';
 import '../../teacher-dashboard.css'; // Import the new premium styles
+import MessagingPanel from '../../components/MessagingPanel';
 
-const MOCK_COURSES = [
-    { id: 1, title: 'Operating Systems', students: 20, rating: 4.8, revenue: '—', status: 'Published' },
-    { id: 2, title: 'Computer Networks', students: 20, rating: 4.6, revenue: '—', status: 'Published' },
+const INITIAL_COURSES = [
+    {
+        id: 1, title: 'Operating Systems', code: 'CS-401', semester: 4, credits: 4,
+        students: 20, rating: 4.8, revenue: '—', status: 'Published',
+        icon: '💻', color: '#6366f1',
+        description: 'Covers process management, memory management, file systems, and deadlock handling in modern operating systems.',
+        syllabus: [
+            { id: 1, unit: 'Unit 1', topic: 'Introduction to OS & Process Management', done: true },
+            { id: 2, unit: 'Unit 2', topic: 'CPU Scheduling Algorithms', done: true },
+            { id: 3, unit: 'Unit 3', topic: 'Process Synchronization & Semaphores', done: true },
+            { id: 4, unit: 'Unit 4', topic: 'Deadlock Detection & Recovery', done: true },
+            { id: 5, unit: 'Unit 5', topic: 'Memory Management & Virtual Memory', done: false },
+            { id: 6, unit: 'Unit 6', topic: 'File Systems & I/O Management', done: false },
+        ],
+        announcements: [
+            { id: 1, text: 'Mid-term exam scheduled for March 5th — Unit 1 to 4.', date: 'Feb 18' },
+            { id: 2, text: 'Assignment 1 deadline extended to Feb 27.', date: 'Feb 20' },
+        ],
+    },
+    {
+        id: 2, title: 'Computer Networks', code: 'CS-402', semester: 4, credits: 4,
+        students: 20, rating: 4.6, revenue: '—', status: 'Published',
+        icon: '🌐', color: '#0ea5e9',
+        description: 'Covers the TCP/IP stack, routing protocols, transport layer mechanisms, network security, and wireless networking.',
+        syllabus: [
+            { id: 1, unit: 'Unit 1', topic: 'Network Models & Physical Layer', done: true },
+            { id: 2, unit: 'Unit 2', topic: 'Data Link Layer & MAC Protocols', done: true },
+            { id: 3, unit: 'Unit 3', topic: 'Network Layer & IP Addressing', done: true },
+            { id: 4, unit: 'Unit 4', topic: 'Transport Layer — TCP & UDP', done: false },
+            { id: 5, unit: 'Unit 5', topic: 'Application Layer Protocols', done: false },
+            { id: 6, unit: 'Unit 6', topic: 'Network Security Fundamentals', done: false },
+        ],
+        announcements: [
+            { id: 1, text: 'Wireshark Lab session on Feb 25 — bring laptops.', date: 'Feb 17' },
+        ],
+    },
 ];
 
 const MOCK_STUDENTS = [
@@ -64,6 +98,77 @@ export default function TeacherDashboard({ activeTab }) {
     const { user } = useAuth();
     const [assignmentViewMode, setAssignmentViewMode] = useState('list'); // 'list', 'view', 'grade'
     const [selectedAssignment, setSelectedAssignment] = useState(null);
+
+    // ── Course Management State ──────────────────────────────────────────────
+    const [courses, setCourses] = useState(INITIAL_COURSES);
+    const [courseView, setCourseView] = useState('list'); // 'list' | 'detail'
+    const [selectedCourse, setSelectedCourse] = useState(null);
+    const [showCourseModal, setShowCourseModal] = useState(false);
+    const [editingCourse, setEditingCourse] = useState(null); // null = new course
+    const [courseForm, setCourseForm] = useState({ title: '', code: '', semester: '', credits: '', description: '', status: 'Draft', icon: '📚', color: '#6366f1' });
+    const [newTopic, setNewTopic] = useState('');
+    const [announcementText, setAnnouncementText] = useState('');
+    const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+
+    const openCreateModal = () => {
+        setEditingCourse(null);
+        setCourseForm({ title: '', code: '', semester: '', credits: '', description: '', status: 'Draft', icon: '📚', color: '#6366f1' });
+        setShowCourseModal(true);
+    };
+
+    const openEditModal = (course) => {
+        setEditingCourse(course);
+        setCourseForm({ title: course.title, code: course.code, semester: course.semester, credits: course.credits, description: course.description, status: course.status, icon: course.icon, color: course.color });
+        setShowCourseModal(true);
+    };
+
+    const saveCourse = () => {
+        if (!courseForm.title.trim()) return;
+        if (editingCourse) {
+            setCourses(prev => prev.map(c => c.id === editingCourse.id ? { ...c, ...courseForm, semester: Number(courseForm.semester), credits: Number(courseForm.credits) } : c));
+            if (selectedCourse?.id === editingCourse.id) setSelectedCourse(prev => ({ ...prev, ...courseForm, semester: Number(courseForm.semester), credits: Number(courseForm.credits) }));
+        } else {
+            const newCourse = { id: Date.now(), ...courseForm, semester: Number(courseForm.semester) || 1, credits: Number(courseForm.credits) || 3, students: 0, rating: 0, revenue: '—', syllabus: [], announcements: [] };
+            setCourses(prev => [...prev, newCourse]);
+        }
+        setShowCourseModal(false);
+    };
+
+    const deleteCourse = (id) => {
+        setCourses(prev => prev.filter(c => c.id !== id));
+        if (selectedCourse?.id === id) { setCourseView('list'); setSelectedCourse(null); }
+        setDeleteConfirmId(null);
+    };
+
+    const toggleSyllabusTopic = (courseId, topicId) => {
+        const updater = prev => prev.map(c => c.id === courseId ? { ...c, syllabus: c.syllabus.map(t => t.id === topicId ? { ...t, done: !t.done } : t) } : c);
+        setCourses(updater);
+        setSelectedCourse(prev => ({ ...prev, syllabus: prev.syllabus.map(t => t.id === topicId ? { ...t, done: !t.done } : t) }));
+    };
+
+    const addSyllabusTopic = (courseId) => {
+        if (!newTopic.trim()) return;
+        const topic = { id: Date.now(), unit: `Unit ${(courses.find(c => c.id === courseId)?.syllabus.length || 0) + 1}`, topic: newTopic.trim(), done: false };
+        const updater = prev => prev.map(c => c.id === courseId ? { ...c, syllabus: [...c.syllabus, topic] } : c);
+        setCourses(updater);
+        setSelectedCourse(prev => ({ ...prev, syllabus: [...prev.syllabus, topic] }));
+        setNewTopic('');
+    };
+
+    const removeSyllabusTopic = (courseId, topicId) => {
+        const updater = prev => prev.map(c => c.id === courseId ? { ...c, syllabus: c.syllabus.filter(t => t.id !== topicId) } : c);
+        setCourses(updater);
+        setSelectedCourse(prev => ({ ...prev, syllabus: prev.syllabus.filter(t => t.id !== topicId) }));
+    };
+
+    const postAnnouncement = (courseId) => {
+        if (!announcementText.trim()) return;
+        const ann = { id: Date.now(), text: announcementText.trim(), date: 'Today' };
+        const updater = prev => prev.map(c => c.id === courseId ? { ...c, announcements: [ann, ...c.announcements] } : c);
+        setCourses(updater);
+        setSelectedCourse(prev => ({ ...prev, announcements: [ann, ...prev.announcements] }));
+        setAnnouncementText('');
+    };
 
     const handleViewAssignment = (assignment) => {
         setSelectedAssignment(assignment);
@@ -210,56 +315,242 @@ export default function TeacherDashboard({ activeTab }) {
         </div>
     );
 
-    if (activeTab === 'courses') return (
-        <div className="teacher-dashboard-container animate-fade-in">
-            <div className="topbar" style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                <div>
-                    <div className="topbar-title">My Courses</div>
-                    <div className="topbar-subtitle">Manage your educational content</div>
-                </div>
-                <button className="btn btn-primary btn-glow" style={{ padding: '10px 20px' }}>+ New Course</button>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px' }}>
-                {MOCK_COURSES.map((c, i) => (
-                    <div key={c.id} className={`card glass-panel-enhanced hover-lift-3d animate-fade-in delay-${(i + 1) * 100}`} style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                            <div style={{
-                                width: '60px', height: '60px', borderRadius: '16px',
-                                background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1))',
-                                color: 'var(--primary)',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px'
-                            }}>📚</div>
-                            <span className={`badge ${c.status === 'Published' ? 'badge-active' : 'badge-pending'}`}>{c.status}</span>
-                        </div>
+    if (activeTab === 'courses') {
 
-                        <div>
-                            <div style={{ fontWeight: 800, fontSize: '18px', color: 'var(--text-primary)', marginBottom: '8px', lineHeight: '1.3' }}>{c.title}</div>
-                            <div style={{ fontSize: '14px', color: 'var(--text-muted)' }}>ID: #CRS-{202400 + c.id}</div>
+        // ── COURSE DETAIL VIEW ───────────────────────────────────────────────
+        if (courseView === 'detail' && selectedCourse) {
+            const c = selectedCourse;
+            const donePct = c.syllabus.length ? Math.round(c.syllabus.filter(t => t.done).length / c.syllabus.length * 100) : 0;
+            const courseStudents = MOCK_STUDENTS.filter(s => s.course === c.title);
+            return (
+                <div className="teacher-dashboard-container animate-fade-in">
+                    {/* Back + Actions bar */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                        <button onClick={() => { setCourseView('list'); setSelectedCourse(null); }} style={{ background: 'transparent', border: '1px solid var(--border)', borderRadius: '10px', padding: '8px 16px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>← Back to Courses</button>
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            <button onClick={() => openEditModal(courses.find(x => x.id === c.id))} style={{ background: '#6366f1', border: 'none', borderRadius: '10px', padding: '8px 18px', fontSize: '13px', fontWeight: 700, color: 'white', cursor: 'pointer' }}>✏ Edit Course</button>
+                            <button onClick={() => setDeleteConfirmId(c.id)} style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '10px', padding: '8px 18px', fontSize: '13px', fontWeight: 700, color: '#ef4444', cursor: 'pointer' }}>🗑 Delete</button>
                         </div>
-
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0', borderTop: '1px solid rgba(0,0,0,0.05)', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
-                            <div style={{ textAlign: 'center' }}>
-                                <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>{c.students}</div>
-                                <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Students</div>
-                            </div>
-                            <div style={{ width: '1px', height: '24px', background: 'var(--border)' }}></div>
-                            <div style={{ textAlign: 'center' }}>
-                                <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>{c.rating}</div>
-                                <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Rating</div>
-                            </div>
-                            <div style={{ width: '1px', height: '24px', background: 'var(--border)' }}></div>
-                            <div style={{ textAlign: 'center' }}>
-                                <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--success)' }}>{c.revenue}</div>
-                                <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Earned</div>
-                            </div>
-                        </div>
-
-                        <button className="btn btn-secondary btn-full" style={{ marginTop: 'auto' }}>Manage Course</button>
                     </div>
-                ))}
+
+                    {/* Delete confirm */}
+                    {deleteConfirmId === c.id && (
+                        <div style={{ background: '#fef2f2', border: '1.5px solid #fecaca', borderRadius: '16px', padding: '16px 22px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ fontWeight: 700, color: '#b91c1c' }}>⚠ Are you sure you want to delete "{c.title}"? This cannot be undone.</div>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <button onClick={() => setDeleteConfirmId(null)} style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '6px 16px', fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
+                                <button onClick={() => deleteCourse(c.id)} style={{ background: '#ef4444', border: 'none', borderRadius: '8px', padding: '6px 16px', fontWeight: 700, color: 'white', cursor: 'pointer' }}>Delete</button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Hero */}
+                    <div style={{ background: `linear-gradient(135deg, ${c.color} 0%, ${c.color}aa 100%)`, borderRadius: '24px', padding: '28px 36px', marginBottom: '24px', color: 'white', position: 'relative', overflow: 'hidden' }}>
+                        <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '200px', height: '200px', borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '18px', marginBottom: '16px' }}>
+                            <div style={{ width: '70px', height: '70px', borderRadius: '20px', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px', flexShrink: 0 }}>{c.icon}</div>
+                            <div>
+                                <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '2px', opacity: 0.8, textTransform: 'uppercase', marginBottom: '4px' }}>{c.code} · Semester {c.semester} · {c.credits} Credits</div>
+                                <div style={{ fontSize: '28px', fontWeight: 900, lineHeight: 1.2 }}>{c.title}</div>
+                                <span style={{ display: 'inline-block', marginTop: '6px', background: 'rgba(255,255,255,0.25)', borderRadius: '20px', padding: '3px 14px', fontSize: '12px', fontWeight: 700 }}>{c.status}</span>
+                            </div>
+                        </div>
+                        <div style={{ fontSize: '14px', opacity: 0.9, maxWidth: '600px', lineHeight: 1.5 }}>{c.description}</div>
+                        <div style={{ display: 'flex', gap: '14px', marginTop: '18px', flexWrap: 'wrap' }}>
+                            {[{ l: 'Students', v: c.students || courseStudents.length }, { l: 'Rating', v: c.rating || '—' }, { l: 'Syllabus Done', v: `${donePct}%` }].map((s, i) => (
+                                <div key={i} style={{ background: 'rgba(255,255,255,0.15)', borderRadius: '12px', padding: '10px 18px' }}>
+                                    <div style={{ fontSize: '10px', opacity: 0.8, marginBottom: '2px' }}>{s.l}</div>
+                                    <div style={{ fontWeight: 900, fontSize: '18px' }}>{s.v}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '20px' }}>
+                        {/* LEFT: Syllabus */}
+                        <div>
+                            <div style={{ background: 'white', border: '1.5px solid #e2e8f0', borderRadius: '20px', overflow: 'hidden', marginBottom: '20px' }}>
+                                <div style={{ padding: '16px 22px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fafbff' }}>
+                                    <div>
+                                        <div style={{ fontWeight: 800, fontSize: '15px', color: '#1e293b' }}>📋 Course Syllabus</div>
+                                        <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>{c.syllabus.filter(t => t.done).length}/{c.syllabus.length} topics covered</div>
+                                    </div>
+                                    <div style={{ height: '8px', width: '100px', background: '#f1f5f9', borderRadius: '99px', overflow: 'hidden' }}>
+                                        <div style={{ width: `${donePct}%`, height: '100%', background: donePct === 100 ? '#10b981' : c.color, borderRadius: '99px' }} />
+                                    </div>
+                                </div>
+                                <div style={{ padding: '16px 22px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                    {c.syllabus.map((t) => (
+                                        <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', borderRadius: '12px', background: t.done ? 'rgba(16,185,129,0.06)' : '#fafbff', border: `1px solid ${t.done ? 'rgba(16,185,129,0.2)' : '#f1f5f9'}`, transition: 'all 0.2s' }}>
+                                            <button onClick={() => toggleSyllabusTopic(c.id, t.id)} style={{ width: '22px', height: '22px', borderRadius: '6px', border: `2px solid ${t.done ? '#10b981' : '#cbd5e1'}`, background: t.done ? '#10b981' : 'white', color: 'white', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontWeight: 800 }}>{t.done ? '✓' : ''}</button>
+                                            <div style={{ flex: 1, minWidth: 0 }}>
+                                                <div style={{ fontWeight: t.done ? 500 : 700, fontSize: '13px', color: t.done ? '#64748b' : '#1e293b', textDecoration: t.done ? 'line-through' : 'none' }}>{t.topic}</div>
+                                                <div style={{ fontSize: '10px', color: '#94a3b8', marginTop: '2px' }}>{t.unit}</div>
+                                            </div>
+                                            <button onClick={() => removeSyllabusTopic(c.id, t.id)} style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '6px', padding: '3px 8px', fontSize: '11px', color: '#ef4444', cursor: 'pointer', flexShrink: 0 }}>✕</button>
+                                        </div>
+                                    ))}
+                                </div>
+                                {/* Add topic */}
+                                <div style={{ padding: '14px 22px', borderTop: '1px solid #f1f5f9', display: 'flex', gap: '10px' }}>
+                                    <input value={newTopic} onChange={e => setNewTopic(e.target.value)} onKeyDown={e => e.key === 'Enter' && addSyllabusTopic(c.id)} placeholder="Add new topic..." style={{ flex: 1, padding: '9px 14px', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '13px', outline: 'none', background: '#fafbff' }} />
+                                    <button onClick={() => addSyllabusTopic(c.id)} style={{ background: c.color, border: 'none', borderRadius: '10px', padding: '9px 18px', fontSize: '13px', fontWeight: 700, color: 'white', cursor: 'pointer' }}>+ Add</button>
+                                </div>
+                            </div>
+
+                            {/* Enrolled Students */}
+                            <div style={{ background: 'white', border: '1.5px solid #e2e8f0', borderRadius: '20px', overflow: 'hidden' }}>
+                                <div style={{ padding: '16px 22px', borderBottom: '1px solid #f1f5f9', background: '#fafbff' }}>
+                                    <div style={{ fontWeight: 800, fontSize: '15px', color: '#1e293b' }}>👥 Enrolled Students ({courseStudents.length})</div>
+                                </div>
+                                <div style={{ maxHeight: '260px', overflowY: 'auto' }}>
+                                    {courseStudents.map((s, i) => (
+                                        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 22px', borderBottom: '1px solid #f8fafc' }}>
+                                            <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: `${c.color}18`, color: c.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '13px', flexShrink: 0 }}>{s.name.split(' ').map(n => n[0]).join('')}</div>
+                                            <div style={{ flex: 1 }}>
+                                                <div style={{ fontWeight: 600, fontSize: '13px', color: '#1e293b' }}>{s.name}</div>
+                                                <div style={{ fontSize: '10px', color: '#94a3b8' }}>{s.lastActive} active</div>
+                                            </div>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                <div style={{ width: '50px', height: '5px', background: '#f1f5f9', borderRadius: '99px', overflow: 'hidden' }}><div style={{ width: `${s.progress}%`, height: '100%', background: s.progress >= 70 ? '#10b981' : s.progress >= 40 ? '#f59e0b' : '#ef4444', borderRadius: '99px' }} /></div>
+                                                <span style={{ fontSize: '11px', fontWeight: 700, color: '#475569', minWidth: '32px' }}>{s.progress}%</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* RIGHT: Announcements */}
+                        <div style={{ background: 'white', border: '1.5px solid #e2e8f0', borderRadius: '20px', overflow: 'hidden', alignSelf: 'start' }}>
+                            <div style={{ padding: '16px 22px', borderBottom: '1px solid #f1f5f9', background: '#fafbff' }}>
+                                <div style={{ fontWeight: 800, fontSize: '15px', color: '#1e293b' }}>📣 Announcements</div>
+                                <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>Visible to all enrolled students</div>
+                            </div>
+                            <div style={{ padding: '16px 22px', borderBottom: '1px solid #f1f5f9' }}>
+                                <textarea value={announcementText} onChange={e => setAnnouncementText(e.target.value)} placeholder="Write an announcement for your students..." rows={3} style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: '13px', resize: 'vertical', outline: 'none', background: '#fafbff', boxSizing: 'border-box' }} />
+                                <button onClick={() => postAnnouncement(c.id)} style={{ background: c.color, border: 'none', borderRadius: '10px', padding: '9px 20px', fontSize: '13px', fontWeight: 700, color: 'white', cursor: 'pointer', marginTop: '10px', width: '100%' }}>📣 Post Announcement</button>
+                            </div>
+                            <div style={{ padding: '14px 22px', display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '360px', overflowY: 'auto' }}>
+                                {c.announcements.length === 0 && <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: '13px', padding: '20px' }}>No announcements yet.</div>}
+                                {c.announcements.map((a) => (
+                                    <div key={a.id} style={{ padding: '12px 14px', borderRadius: '12px', background: `${c.color}08`, border: `1px solid ${c.color}20` }}>
+                                        <div style={{ fontSize: '13px', color: '#334155', lineHeight: 1.5 }}>{a.text}</div>
+                                        <div style={{ fontSize: '10px', color: '#94a3b8', marginTop: '6px', fontWeight: 600 }}>📅 {a.date}</div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // ── COURSE LIST VIEW ─────────────────────────────────────────────────
+        return (
+            <div className="teacher-dashboard-container animate-fade-in">
+                {/* Course Modal */}
+                {showCourseModal && (
+                    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(6px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+                        <div style={{ background: 'white', borderRadius: '24px', padding: '32px', width: '100%', maxWidth: '560px', boxShadow: '0 24px 80px rgba(0,0,0,0.18)' }}>
+                            <div style={{ fontSize: '22px', fontWeight: 900, color: '#1e293b', marginBottom: '6px' }}>{editingCourse ? '✏ Edit Course' : '➕ New Course'}</div>
+                            <div style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '24px' }}>Fill in the details below to {editingCourse ? 'update' : 'create'} the course.</div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+                                {[{ label: 'Course Title *', key: 'title', span: 2 }, { label: 'Course Code', key: 'code' }, { label: 'Semester', key: 'semester', type: 'number' }, { label: 'Credits', key: 'credits', type: 'number' }, { label: 'Icon (Emoji)', key: 'icon' }].map(f => (
+                                    <div key={f.key} style={{ gridColumn: f.span === 2 ? 'span 2' : 'auto' }}>
+                                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>{f.label}</label>
+                                        <input type={f.type || 'text'} value={courseForm[f.key]} onChange={e => setCourseForm(p => ({ ...p, [f.key]: e.target.value }))} style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1.5px solid #e2e8f0', fontSize: '13px', outline: 'none', boxSizing: 'border-box', background: '#fafbff' }} />
+                                    </div>
+                                ))}
+                                <div style={{ gridColumn: 'span 2' }}>
+                                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>Status</label>
+                                    <select value={courseForm.status} onChange={e => setCourseForm(p => ({ ...p, status: e.target.value }))} style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1.5px solid #e2e8f0', fontSize: '13px', outline: 'none', background: '#fafbff' }}>
+                                        {['Draft', 'Published', 'Archived'].map(s => <option key={s}>{s}</option>)}
+                                    </select>
+                                </div>
+                                <div style={{ gridColumn: 'span 2' }}>
+                                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>Description</label>
+                                    <textarea value={courseForm.description} onChange={e => setCourseForm(p => ({ ...p, description: e.target.value }))} rows={3} style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1.5px solid #e2e8f0', fontSize: '13px', outline: 'none', resize: 'vertical', background: '#fafbff', boxSizing: 'border-box' }} />
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '12px', marginTop: '24px', justifyContent: 'flex-end' }}>
+                                <button onClick={() => setShowCourseModal(false)} style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px 22px', fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
+                                <button onClick={saveCourse} style={{ background: '#6366f1', border: 'none', borderRadius: '10px', padding: '10px 22px', fontWeight: 700, color: 'white', cursor: 'pointer' }}>{editingCourse ? 'Save Changes' : 'Create Course'}</button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                <div className="topbar" style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                    <div>
+                        <div className="topbar-title">My Courses</div>
+                        <div className="topbar-subtitle">Manage your educational content · {courses.length} course{courses.length !== 1 ? 's' : ''}</div>
+                    </div>
+                    <button className="btn btn-primary btn-glow" onClick={openCreateModal} style={{ padding: '10px 20px' }}>+ New Course</button>
+                </div>
+
+                {courses.length === 0 && (
+                    <div style={{ textAlign: 'center', padding: '60px 20px', background: 'white', borderRadius: '20px', border: '2px dashed #e2e8f0' }}>
+                        <div style={{ fontSize: '48px', marginBottom: '16px' }}>📚</div>
+                        <div style={{ fontSize: '20px', fontWeight: 700, color: '#1e293b', marginBottom: '8px' }}>No courses yet</div>
+                        <div style={{ fontSize: '14px', color: '#94a3b8', marginBottom: '20px' }}>Create your first course to get started.</div>
+                        <button onClick={openCreateModal} style={{ background: '#6366f1', border: 'none', borderRadius: '12px', padding: '10px 24px', fontWeight: 700, color: 'white', cursor: 'pointer' }}>+ Create First Course</button>
+                    </div>
+                )}
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px' }}>
+                    {courses.map((c, i) => (
+                        <div key={c.id} className={`card glass-panel-enhanced hover-lift-3d animate-fade-in delay-${(i + 1) * 100}`} style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                <div style={{ width: '60px', height: '60px', borderRadius: '16px', background: `${c.color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px' }}>{c.icon}</div>
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
+                                    <span className={`badge ${c.status === 'Published' ? 'badge-active' : c.status === 'Archived' ? 'badge-inactive' : 'badge-pending'}`}>{c.status}</span>
+                                    {c.code && <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 600 }}>{c.code}</span>}
+                                </div>
+                            </div>
+                            <div>
+                                <div style={{ fontWeight: 800, fontSize: '18px', color: 'var(--text-primary)', marginBottom: '6px', lineHeight: '1.3' }}>{c.title}</div>
+                                <div style={{ fontSize: '12px', color: 'var(--text-muted)', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{c.description || `Semester ${c.semester || '—'} · ${c.credits || '—'} Credits`}</div>
+                            </div>
+                            {c.syllabus && c.syllabus.length > 0 && (
+                                <div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#94a3b8', marginBottom: '5px' }}>
+                                        <span>Syllabus Progress</span>
+                                        <span style={{ fontWeight: 700, color: c.color }}>{Math.round(c.syllabus.filter(t => t.done).length / c.syllabus.length * 100)}%</span>
+                                    </div>
+                                    <div style={{ height: '6px', background: '#f1f5f9', borderRadius: '99px', overflow: 'hidden' }}>
+                                        <div style={{ width: `${Math.round(c.syllabus.filter(t => t.done).length / c.syllabus.length * 100)}%`, height: '100%', background: c.color, borderRadius: '99px' }} />
+                                    </div>
+                                </div>
+                            )}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderTop: '1px solid rgba(0,0,0,0.05)', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
+                                {[{ l: 'Students', v: c.students }, { l: 'Rating', v: c.rating || '—' }, { l: 'Credits', v: c.credits || '—' }].map((s, j) => (
+                                    <div key={j} style={{ textAlign: 'center', flex: 1 }}>
+                                        <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>{s.v}</div>
+                                        <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>{s.l}</div>
+                                    </div>
+                                ))}
+                            </div>
+                            <div style={{ display: 'flex', gap: '8px', marginTop: 'auto' }}>
+                                <button onClick={() => { setSelectedCourse(courses.find(x => x.id === c.id)); setCourseView('detail'); }} className="btn btn-secondary" style={{ flex: 1 }}>Manage Course</button>
+                                <button onClick={() => openEditModal(c)} style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '8px 12px', cursor: 'pointer', fontSize: '14px' }} title="Edit">✏</button>
+                                <button onClick={() => setDeleteConfirmId(c.id)} style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '10px', padding: '8px 12px', cursor: 'pointer', fontSize: '14px' }} title="Delete">🗑</button>
+                            </div>
+                            {deleteConfirmId === c.id && (
+                                <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '12px', padding: '12px 14px' }}>
+                                    <div style={{ fontSize: '12px', fontWeight: 700, color: '#b91c1c', marginBottom: '8px' }}>Delete "{c.title}"?</div>
+                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                        <button onClick={() => setDeleteConfirmId(null)} style={{ flex: 1, background: 'white', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
+                                        <button onClick={() => deleteCourse(c.id)} style={{ flex: 1, background: '#ef4444', border: 'none', borderRadius: '8px', padding: '6px', fontSize: '12px', fontWeight: 700, color: 'white', cursor: 'pointer' }}>Delete</button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
             </div>
-        </div>
-    );
+        );
+    }
 
     if (activeTab === 'students') return (
         <div className="teacher-dashboard-container animate-fade-in">
@@ -1133,6 +1424,8 @@ export default function TeacherDashboard({ activeTab }) {
             </div>
         );
     }
+
+    if (activeTab === 'messages') return <MessagingPanel senderRole="TEACHER" />;
 
     return (
         <div className="card animate-fade-in glass-panel-enhanced hover-lift-3d" style={{ margin: '24px' }}>

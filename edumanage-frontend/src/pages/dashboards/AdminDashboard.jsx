@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { userAPI, classAPI } from '../../api/api';
 import toast from 'react-hot-toast';
 import '../../landing_animations.css';
+import MessagingPanel from '../../components/MessagingPanel';
 
 const MOCK_STATS = [
     { label: 'Total Students', value: '1,284', icon: '🎓', color: 'indigo', change: '+12%' },
@@ -1305,6 +1306,8 @@ export default function AdminDashboard({ activeTab }) {
             </div>
         </div>
     );
+
+    if (activeTab === 'messages') return <MessagingPanel senderRole="ADMIN" />;
 
     return (
         <div style={{

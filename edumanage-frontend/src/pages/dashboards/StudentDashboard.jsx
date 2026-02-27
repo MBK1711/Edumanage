@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import '../../landing_animations.css';
 import '../../student-dashboard.css';
+import MessagingPanel from '../../components/MessagingPanel';
 
 const MOCK_SUBJECTS = [
     {
@@ -407,49 +408,123 @@ export default function StudentDashboard({ activeTab }) {
         </div>
     );
 
-    if (activeTab === 'timetable') return (
-        <div className="animate-fade-in student-panel-glow">
-            <div className="topbar" style={{ marginBottom: '24px' }}>
-                <div>
-                    <div className="topbar-title">Weekly Schedule</div>
-                    <div className="topbar-subtitle">Manage your classes and labs efficiently</div>
+    if (activeTab === 'timetable') {
+        const todayStr = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+        const currentSlotTime = '10:00 AM'; // Mock current time for visual
+
+        const getTimetableCell = (day, time) => MOCK_TIMETABLE.find(t => t.day === day && t.time === time);
+
+        // Get today's classes
+        const todaysClasses = MOCK_TIMETABLE.filter(t => t.day === todayStr) || MOCK_TIMETABLE.filter(t => t.day === 'Monday'); // fallback
+
+        const typeColors = {
+            'Lecture': '#6366f1',
+            'Lab': '#10b981',
+            'Tutorial': '#f59e0b',
+            'Meeting': '#0ea5e9'
+        };
+
+        const guessType = (subj) => subj.includes('Lab') ? 'Lab' : subj.includes('Project') ? 'Tutorial' : subj.includes('Library') ? 'Meeting' : 'Lecture';
+
+        return (
+            <div className="animate-fade-in student-panel-glow">
+                {/* Hero / Today's Overview */}
+                <div style={{ background: 'linear-gradient(135deg, #1e293b 0%, #334155 55%, #0f172a 100%)', borderRadius: '24px', padding: '24px 32px', marginBottom: '24px', color: 'white', display: 'flex', gap: '24px', flexWrap: 'wrap', position: 'relative', overflow: 'hidden' }}>
+                    <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '200px', height: '200px', borderRadius: '50%', background: 'rgba(255,255,255,0.03)' }} />
+                    <div style={{ flex: '1 1 300px' }}>
+                        <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '2px', opacity: 0.6, marginBottom: '4px', textTransform: 'uppercase' }}>📅 {todayStr}'s Schedule</div>
+                        <div style={{ fontSize: '24px', fontWeight: 800, marginBottom: '14px' }}>It's {todayStr}!</div>
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            <div style={{ background: 'rgba(255,255,255,0.1)', padding: '10px 16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.15)' }}>
+                                <div style={{ fontSize: '10px', opacity: 0.7, marginBottom: '2px' }}>Total Classes</div>
+                                <div style={{ fontSize: '18px', fontWeight: 800 }}>{todaysClasses.length}</div>
+                            </div>
+                            <div style={{ background: 'rgba(16,185,129,0.15)', padding: '10px 16px', borderRadius: '12px', border: '1px solid rgba(16,185,129,0.3)', color: '#34d399' }}>
+                                <div style={{ fontSize: '10px', opacity: 0.8, marginBottom: '2px' }}>Next Up</div>
+                                <div style={{ fontSize: '14px', fontWeight: 800, whiteSpace: 'nowrap' }}>{todaysClasses[0]?.time || 'None'}</div>
+                            </div>
+                        </div>
+                    </div>
+                    {/* Today's Timeline mini-widget */}
+                    <div style={{ flex: '2 1 400px', display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px' }} className="hide-scroll">
+                        {todaysClasses.map((c, i) => (
+                            <div key={i} style={{ background: 'rgba(255,255,255,0.08)', borderRadius: '16px', padding: '12px 16px', minWidth: '160px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                                <div style={{ fontSize: '11px', color: '#cbd5e1', fontWeight: 700, marginBottom: '6px' }}>🕐 {c.time}</div>
+                                <div style={{ fontSize: '14px', fontWeight: 800, marginBottom: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.subject}</div>
+                                <div style={{ fontSize: '12px', color: '#94a3b8' }}>📍 {c.room}</div>
+                            </div>
+                        ))}
+                        {todaysClasses.length === 0 && <div style={{ padding: '20px', color: 'rgba(255,255,255,0.5)' }}>No classes today!</div>}
+                    </div>
                 </div>
-                <button className="btn btn-secondary btn-sm">Export PDF</button>
-            </div>
 
-            <div className="timetable-container animate-fade-in delay-100">
-                <div className="timetable-grid">
-                    {/* Header Row */}
-                    <div className="timetable-header-cell">Time / Day</div>
-                    {TIME_SLOTS.map(time => (
-                        <div key={time} className="timetable-header-cell">{time}</div>
-                    ))}
+                {/* Filters / Legend */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', background: 'white', padding: '12px 20px', borderRadius: '16px', border: '1.5px solid #e2e8f0' }}>
+                    <div style={{ display: 'flex', gap: '16px' }}>
+                        {Object.entries(typeColors).map(([t, c]) => (
+                            <div key={t} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 700, color: '#475569' }}>
+                                <span style={{ width: '10px', height: '10px', borderRadius: '3px', background: c }}></span> {t}
+                            </div>
+                        ))}
+                    </div>
+                    <button style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '6px 14px', fontSize: '11px', fontWeight: 700, color: '#475569', cursor: 'pointer' }}>📥 Download PDF</button>
+                </div>
 
-                    {/* Rows */}
-                    {DAYS.map(day => (
-                        <>
-                            <div key={day} className="timetable-day-header">{day}</div>
-                            {TIME_SLOTS.map(time => {
-                                const subject = getTimetableCell(day, time);
-                                return (
-                                    <div key={`${day}-${time}`} className={`timetable-cell ${subject ? 'active' : ''}`}>
-                                        {subject ? (
-                                            <>
-                                                <div className="timetable-subject">{subject.subject}</div>
-                                                <div className="timetable-room">📍 {subject.room}</div>
-                                            </>
-                                        ) : (
-                                            <span style={{ opacity: 0.3 }}>-</span>
-                                        )}
+                {/* Timetable Grid */}
+                <div style={{ background: 'white', border: '1.5px solid #e2e8f0', borderRadius: '24px', overflow: 'hidden' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: `80px repeat(${TIME_SLOTS.length}, 1fr)` }}>
+                        {/* Header Row */}
+                        <div style={{ background: '#f8fafc', padding: '14px', borderBottom: '1.5px solid #e2e8f0', borderRight: '1.5px solid #e2e8f0', fontWeight: 800, fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Day</div>
+                        {TIME_SLOTS.map(time => (
+                            <div key={time} style={{ background: '#f8fafc', padding: '14px', borderBottom: '1.5px solid #e2e8f0', borderRight: '1px solid #f1f5f9', fontWeight: 800, fontSize: '11px', color: '#64748b', textAlign: 'center' }}>
+                                {time}
+                            </div>
+                        ))}
+
+                        {/* Rows */}
+                        {DAYS.map((day, di) => {
+                            const isToday = day === todayStr;
+                            return (
+                                <>
+                                    <div key={day} style={{ background: isToday ? 'rgba(99,102,241,0.05)' : 'white', padding: '0', borderBottom: '1px solid #f1f5f9', borderRight: '1.5px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '4px', position: 'relative' }}>
+                                        {isToday && <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '4px', background: '#6366f1' }} />}
+                                        <span style={{ fontWeight: 800, fontSize: '13px', color: isToday ? '#6366f1' : '#1e293b' }}>{day.substring(0, 3)}</span>
+                                        {isToday && <span style={{ fontSize: '9px', fontWeight: 800, background: '#6366f1', color: 'white', padding: '2px 6px', borderRadius: '10px' }}>TODAY</span>}
                                     </div>
-                                );
-                            })}
-                        </>
-                    ))}
+                                    {TIME_SLOTS.map(time => {
+                                        const subject = getTimetableCell(day, time);
+                                        const isCurrent = isToday && time === currentSlotTime;
+
+                                        if (subject) {
+                                            const sType = guessType(subject.subject);
+                                            const sColor = typeColors[sType];
+                                            return (
+                                                <div key={`${day}-${time}`} style={{ padding: '8px', borderBottom: '1px solid #f1f5f9', borderRight: '1px solid #f1f5f9', background: isCurrent ? 'rgba(99,102,241,0.08)' : isToday ? 'rgba(99,102,241,0.02)' : 'white', position: 'relative' }}>
+                                                    {isCurrent && <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: '#6366f1' }} />}
+                                                    <div style={{ height: '100%', background: `${sColor}12`, border: `1px solid ${sColor}30`, borderRadius: '10px', padding: '8px', display: 'flex', flexDirection: 'column', justifyContent: 'center', transition: 'transform 0.2s', cursor: 'pointer' }} className="hover-lift">
+                                                        <div style={{ fontSize: '11px', fontWeight: 800, color: '#1e293b', lineHeight: 1.2, marginBottom: '6px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{subject.subject}</div>
+                                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
+                                                            <span style={{ fontSize: '10px', color: '#64748b', fontWeight: 600 }}>📍 {subject.room}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        }
+
+                                        return (
+                                            <div key={`${day}-${time}`} style={{ padding: '8px', borderBottom: '1px solid #f1f5f9', borderRight: '1px solid #f1f5f9', background: isToday ? 'rgba(99,102,241,0.02)' : 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                <span style={{ color: '#e2e8f0', fontSize: '20px' }}>-</span>
+                                            </div>
+                                        );
+                                    })}
+                                </>
+                            );
+                        })}
+                    </div>
                 </div>
             </div>
-        </div>
-    );
+        );
+    }
 
     if (activeTab === 'assignments') return (
         <div className="animate-fade-in student-panel-glow">
@@ -1399,6 +1474,103 @@ export default function StudentDashboard({ activeTab }) {
         </div>
     );
 
+
+    if (activeTab === 'attendance') {
+        const myAttendance = [
+            { subject: 'Operating Systems', code: 'CS401', present: 28, total: 32, icon: '💻', color: '#6366f1' },
+            { subject: 'Computer Networks', code: 'CS402', present: 22, total: 30, icon: '🌐', color: '#0ea5e9' },
+            { subject: 'Database Systems', code: 'CS403', present: 29, total: 30, icon: '🗄️', color: '#10b981' },
+            { subject: 'Software Engineering', code: 'CS404', present: 24, total: 28, icon: '⚙️', color: '#f59e0b' },
+            { subject: 'Theory of Computation', code: 'CS405', present: 18, total: 26, icon: '🧮', color: '#ef4444' }
+        ];
+
+        const calcPct = (p, t) => Math.round((p / t) * 100);
+        const overallAtt = Math.round(myAttendance.reduce((acc, c) => acc + c.present, 0) / myAttendance.reduce((acc, c) => acc + c.total, 0) * 100);
+
+        return (
+            <div className="animate-fade-in student-panel-glow">
+                {/* Hero */}
+                <div style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #10b981 55%, #0ea5e9 100%)', borderRadius: '24px', padding: '28px 36px', marginBottom: '24px', position: 'relative', overflow: 'hidden', color: 'white' }}>
+                    <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '200px', height: '200px', borderRadius: '50%', background: 'rgba(255,255,255,0.07)' }} />
+                    <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '2px', opacity: 0.8, marginBottom: '6px', textTransform: 'uppercase' }}>✅ Attendance Tracker</div>
+                    <div style={{ fontSize: '26px', fontWeight: 800, marginBottom: '4px' }}>My Attendance</div>
+                    <div style={{ fontSize: '14px', opacity: 0.88, marginBottom: '18px' }}>Semester 4 • 5 Subjects</div>
+
+                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                        <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: '14px', padding: '12px 20px', border: '1px solid rgba(255,255,255,0.2)' }}>
+                            <div style={{ fontSize: '11px', opacity: 0.8, marginBottom: '4px' }}>Overall Attendance</div>
+                            <div style={{ fontWeight: 800, fontSize: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                {overallAtt}%
+                                <span style={{ fontSize: '12px', background: 'white', color: '#10b981', padding: '2px 8px', borderRadius: '10px' }}>Secure</span>
+                            </div>
+                        </div>
+                        <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: '14px', padding: '12px 20px', border: '1px solid rgba(255,255,255,0.2)' }}>
+                            <div style={{ fontSize: '11px', opacity: 0.8, marginBottom: '4px' }}>Total Classes</div>
+                            <div style={{ fontWeight: 800, fontSize: '24px' }}>146 <span style={{ fontSize: '14px', opacity: 0.8, fontWeight: 500 }}>conducted</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Warning Banner if any subject below 75% */}
+                {myAttendance.some(c => calcPct(c.present, c.total) < 75) && (
+                    <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '16px', padding: '16px 20px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+                        <div style={{ width: '40px', height: '40px', background: '#fee2e2', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px' }}>⚠️</div>
+                        <div style={{ flex: 1 }}>
+                            <div style={{ fontWeight: 800, fontSize: '14px', color: '#991b1b', marginBottom: '2px' }}>Low Attendance Warning</div>
+                            <div style={{ fontSize: '12px', color: '#b91c1c' }}>You have one or more subjects below the 75% minimum requirement. Please improve your attendance to avoid debarment.</div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Subjetcs Grid */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
+                    {myAttendance.map((c, i) => {
+                        const pct = calcPct(c.present, c.total);
+                        const isSafe = pct >= 75;
+                        const statusColor = isSafe ? '#10b981' : '#ef4444';
+
+                        return (
+                            <div key={i} style={{ background: 'white', border: `1.5px solid ${c.color}20`, borderRadius: '20px', overflow: 'hidden', transition: 'transform 0.2s', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }} className="hover-lift">
+                                <div style={{ padding: '18px 20px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: '14px' }}>
+                                    <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: `${c.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px', flexShrink: 0 }}>{c.icon}</div>
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                        <div style={{ fontWeight: 800, fontSize: '15px', color: '#1e293b', marginBottom: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.subject}</div>
+                                        <div style={{ fontSize: '12px', color: '#94a3b8' }}>{c.code}</div>
+                                    </div>
+                                    <div style={{ width: '42px', height: '42px', borderRadius: '50%', border: `3px solid ${statusColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 800, color: statusColor }}>
+                                        {pct}%
+                                    </div>
+                                </div>
+                                <div style={{ padding: '16px 20px', background: '#fafbff' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                                        <div>
+                                            <div style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase' }}>Present</div>
+                                            <div style={{ fontWeight: 800, fontSize: '16px', color: '#1e293b' }}>{c.present} <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 500 }}>/ {c.total}</span></div>
+                                        </div>
+                                        <div style={{ textAlign: 'right' }}>
+                                            <div style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase' }}>Absent</div>
+                                            <div style={{ fontWeight: 800, fontSize: '16px', color: '#ef4444' }}>{c.total - c.present}</div>
+                                        </div>
+                                    </div>
+
+                                    <div style={{ height: '8px', background: '#f1f5f9', borderRadius: '99px', overflow: 'hidden', marginBottom: '12px' }}>
+                                        <div style={{ width: `${pct}%`, height: '100%', background: `linear-gradient(90deg, ${c.color}, ${statusColor})`, borderRadius: '99px' }} />
+                                    </div>
+
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                                        <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: statusColor }}></span>
+                                        <span style={{ fontSize: '11px', fontWeight: 700, color: statusColor }}>{isSafe ? 'Secure Attendance' : 'Action Required'}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+        );
+    }
+
+    if (activeTab === 'messages') return <MessagingPanel senderRole="STUDENT" />;
 
     // Default fallback
     return (

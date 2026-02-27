@@ -684,7 +684,27 @@ textarea {
   flex: 1;
   margin-left: 280px;
   padding: 40px;
-  max-width: 1600px;
+  overflow-y: auto;
+  height: 100vh;
+  box-sizing: border-box;
+  width: calc(100vw - 280px);
+  position: relative;
+}
+
+/* Full-bleed wrapper used by messaging panel — fixed to viewport minus sidebar */
+.messaging-fullscreen {
+  position: fixed;
+  top: 0;
+  left: 280px;
+  right: 0;
+  bottom: 0;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+  z-index: 20;
+  background: #f3f4f8;
 }
 
 .topbar {
