@@ -3,7 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import '../../landing_animations.css';
 import '../../student-dashboard.css';
 import MessagingPanel from '../../components/MessagingPanel';
-import { timetableAPI } from '../../api/api';
+import { timetableAPI, attendanceAPI } from '../../api/api';
 
 const MOCK_SUBJECTS = [
     {
